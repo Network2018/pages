@@ -1,0 +1,75 @@
+<!-- build time:Thu May 03 2018 22:55:48 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Linux 的系统时钟调教 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Linux 的系统时钟调教</h2><p class="post-date">07/30/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>偶然下午折腾 v2ray ，发现因为系统时间和本地时间不一致搞得我被 reject 了，正好提醒我写一个关于 调教(#滑稽) <code>Linux 系统时钟</code> 的帖子。<br><a id="more"></a></p><h2 id="Linux的两种时间"><a href="#Linux的两种时间" class="headerlink" title="Linux的两种时间"></a>Linux的两种时间</h2><p>Linux 时钟分为 <code>系统时钟</code>（System Clock）和 <code>硬件时钟</code>（Real Time Clock，简称RTC）<br>Linux 下，默认情况下，系统时间和硬件时间并不会自动同步。系统运行过程中，系统时间和硬件时间异步计时，互不干扰。<br>系统时钟是当前 Linux Kernel 的时钟，而硬件时钟是主板上由电池供电的时钟，硬件时钟可在 BIOS 中设置。当 Linux 启动时，硬件时钟会去读取系统时钟的设置，并独立于硬件时间进行计时。<br>Linux 中的所有命令（包括函数）均采用系统时钟。<br>Linux 中，时钟相关的命令主要有 <code>date</code> 和 <code>hwclock</code>。</p><h3 id="date"><a href="#date" class="headerlink" title="date"></a>date</h3><p><strong>date [指令] [参数]</strong><br><strong>设定时间</strong></p><pre><code class="language-bash">#设定日期20170730 时刻归零00:00:00  
+date --s &quot;20170730&quot;  
+#设定时刻17:32:59 日期保持不变  
+date --s &quot;17:32:59&quot;  
+#以下六种均可同时设定日期和时刻  
+date --s &quot;20170730 17:32:59&quot;  
+date --s &quot;17:32:59 20170730&quot;  
+date --s &quot;2017/07/30 17:32:59&quot;  
+date --s &quot;17:32:59 2017/07/30&quot;  
+date --s &quot;17:32:59 07/30/2017&quot;  
+date --s &quot;07/30/2017 17:32:59&quot;
+</code></pre><h3 id="hwclock"><a href="#hwclock" class="headerlink" title="hwclock"></a>hwclock</h3><pre><code class="language-bash">#将系统时间写入硬件时间  
+hwclock --systohc  
+#将硬件时间写入系统时间  
+hwclock --hctosys  
+#将当前时间写入BIOS 避免重启后失效  
+hwclock -w
+</code></pre><h2 id="Linux的时区"><a href="#Linux的时区" class="headerlink" title="Linux的时区"></a>Linux的时区</h2><p>时区是什么当然不用解释了<br>这一块讲解怎么设定时区</p><h3 id="查看当前时区"><a href="#查看当前时区" class="headerlink" title="查看当前时区"></a>查看当前时区</h3><p><code>date -R</code></p><h3 id="手动设定时区"><a href="#手动设定时区" class="headerlink" title="手动设定时区"></a>手动设定时区</h3><p><code>tzselect</code><br>跟着提示一步步完成选择后，复制相应的时区文件，替换系统时区文件；或者创建ln -s链接<br>例如修改时区为中国上海<br><code>cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</code></p><h2 id="时间同步的两种方式"><a href="#时间同步的两种方式" class="headerlink" title="时间同步的两种方式"></a>时间同步的两种方式</h2><p>手动设定或多或少会有偏差（将来出了偏差…），这时就可从时间服务器更新时间以获得更高精确度</p><h3 id="ntpdate更新时间"><a href="#ntpdate更新时间" class="headerlink" title="ntpdate更新时间"></a>ntpdate更新时间</h3><p>如果你的linux提示ntpdate:command not found</p><pre><code class="language-bash">debian: apt-get install ntpdate  
+centos: yum install ntpdate
+</code></pre><p>安装完成后可直接执行命令</p><pre><code class="language-bash">ntpdate [ntp时间服务器地址]  
+[root@nanqinlang ~] ntpdate time.nist.gov  
+30 Jul 18:01:08 ntpdate[11063]: adjust time server 216.229.0.179 63592.064680 sec
+</code></pre><p>出现上面的内容即同步成功，然后在crontab里面加上以下：<br><code>*/360 * * * * ntpdate time.nist.gov</code> #每隔六小时同步一次<br>推荐以下时间服务器：</p><pre><code class="language-bash">time.nist.gov  
+time.nuri.net  
+0.asia.pool.ntp.org  
+1.asia.pool.ntp.org  
+2.asia.pool.ntp.org  
+3.asia.pool.ntp.org
+</code></pre><h3 id="ntp自建时间服务器"><a href="#ntp自建时间服务器" class="headerlink" title="ntp自建时间服务器"></a>ntp自建时间服务器</h3><p>上面我提到使用ntp时间服务器来同步时间，这些时间服务器都是较权威的<br>而当我们自己搭建时间服务器时，就不用crontab定时去跑了</p><pre><code class="language-bash">[root@nanqinlang ~] apt-get install ntp -y  
+[root@nanqinlang ~] yum install ntp -y  
+[root@nanqinlang ~] cat /etc/ntp.conf |awk &#39;{if($0 !~ /^$/ &amp;&amp; $0 !~ /^#/) {print $0}}&#39; #修改配置文件  
+restrict default kod nomodify notrap nopeer noquery #拒绝IPV4用户  
+restrict -6 default kod nomodify notrap nopeer noquery #拒绝IPV6用户  
+restrict 192.168.100.0 mask 255.255.255.0 nomodify #本地网段授权访问  
+restrict time.nist.gov #授权访问本地NTP  
+restrict 0.asia.pool.ntp.org  
+restrict 1.asia.pool.ntp.org  
+restrict 2.asia.pool.ntp.org  
+restrict 127.0.0.1  
+restrict -6 ::1  
+server time.nist.gov prefer #设定时间服务器，prefer表示优先  
+server 0.asia.pool.ntp.org  
+server 1.asia.pool.ntp.org  
+server 2.asia.pool.ntp.org  
+driftfile /var/lib/ntp/drift  
+keys /etc/ntp/keys  
+[root@nanqinlang ~] service ntp restart #重启服务  
+[root@nanqinlang ~] netstat -tlunp | grep ntp #查看进程，若看到123则启动成功  
+udp 0 0 136.243.26.229:123 0.0.0.0:*  
+11139/ntpd  
+udp6 0 0 ::1:123 :::*  
+11139/ntpd  
+[root@nanqinlang ~] ntpq -pn #查看同步的服务器IP  
+remote refid st t when poll reach delay offset jitter  
++61.216.153.104 118.163.81.62 3 u 5 64 1 62.575 10.842 1.198  
++212.47.249.141 5.103.128.88 3 u 4 64 1 217.645 -12.155 0.224  
+-51.15.41.135 5.103.128.88 3 u 3 64 1 230.814 -26.141 0.702  
+*108.59.2.24 130.133.1.10 2 u 2 64 1 235.620 -8.041 0.207  
+[root@nanqinlang ~] ntpstat #同步的结果  
+synchronised to local net at stratum 11  
+time correct to within 12 ms  
+polling server every 512 s
+</code></pre><p>其中：</p><ul><li>remote: NTP 主机 IP。最左边的符号，若 “+” 则表示是正在作用的上游 NTP，若 “*” 则表示也有连上，只是作为次要 NTP</li><li>refid: 参考的上游NTP地址</li><li>st: stratum阶层</li><li>when: 几秒前曾进行同步</li><li>poll: 多少秒后进行下次同步</li><li>reach: 已向上游NTP请求同步的次数</li><li>delay: 网络传输过程中钟延迟的时间</li><li>offset: 时间补偿结果</li><li>jitter: 系统时间与硬件时间的差异时间</li></ul></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-left" href="/article/2.html"><span class="nav-arrow">← </span>VS 2017 离线安装包下载方式</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Linux的两种时间"><span class="toc-nav-text">Linux的两种时间</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#date"><span class="toc-nav-text">date</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#hwclock"><span class="toc-nav-text">hwclock</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Linux的时区"><span class="toc-nav-text">Linux的时区</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#查看当前时区"><span class="toc-nav-text">查看当前时区</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#手动设定时区"><span class="toc-nav-text">手动设定时区</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#时间同步的两种方式"><span class="toc-nav-text">时间同步的两种方式</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#ntpdate更新时间"><span class="toc-nav-text">ntpdate更新时间</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#ntp自建时间服务器"><span class="toc-nav-text">ntp自建时间服务器</span></a></li></ol></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "1",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

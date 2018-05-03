@@ -1,0 +1,50 @@
+<!-- build time:Thu May 03 2018 22:55:48 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>dnsmasq - 自建 DNS 服务 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>dnsmasq - 自建 DNS 服务</h2><p class="post-date">09/22/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>本文介绍 dnsmasq 的安装和配置。<br><a id="more"></a></p><p>dnsmasq 是一款小巧且方便地用于配置 DNS 服务和 DHCP 服务器的工具，适用于小型网络。它提供了 DNS 解析功能和可选择的 DHCP 功能，并且提供本地缓存查询请求的功能。</p><h2 id="安装服务"><a href="#安装服务" class="headerlink" title="安装服务"></a>安装服务</h2><h3 id="从仓库安装"><a href="#从仓库安装" class="headerlink" title="从仓库安装"></a>从仓库安装</h3><pre><code class="language-bash">centos: yum install dnsmasq -y
+debian: apt-get install dnsmasq -y
+</code></pre><h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><pre><code class="language-bash"># 编译环境
+centos: yum groupinstall -y &quot;Development Tools&quot;
+debian: apt-get install -y build-essential
+
+# 编译开始
+wget https://raw.githubusercontent.com/nanqinlang/dnsmasq/master/dnsmasq-2.75.zip
+unzip dnsmasq-2.75.zip
+make
+make install
+</code></pre><h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>若为仓库安装方式则默认在 <code>/etc/dnsmasq.conf</code>；若采用编译安装则需要自己创建 <code>dnsmasq.conf</code>。</p><p>以下部分只指出 dns 服务的相关配置，DHCP 服务的不予阐述</p><p>只需留意以下参数：</p><pre><code class="language-python">port=
+# 必填项
+# 定义 dnsmasq 的本地监听端口，可随意设置，本文推荐填写 5353 端口
+
+listen-address=
+# 选填项
+# 定义 dnsmasq 监听的客户端 ip 地址，若只给本机服务可设置为 127.0.0.1，留空表示任何客户端都可使用
+
+address=
+# 选填项
+# 指定 访问域名时的解析 ip ，可用于过滤某些网站
+# 例如填写 address=/sometimesnaive.org/127.0.0.1 将该域名解析到一个不存在的ip 127.0.0.1
+# 以屏蔽对该 host 的访问，同理可以利用此参数过滤广告和恶意网址
+
+server=
+# 必填项
+# 指定请求的上游 DNS 服务器
+# 例如填写 server=208.67.222.222#5353
+
+cache-size=
+# 选填项
+# 本地缓存请求结果
+# 可填入任意十进制整数，表示允许缓存的查询请求条数
+# 例如填写 cache-size=20170922
+</code></pre><h2 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h2><p>以上配置完毕后，启动 dnsmasq 服务</p><pre><code class="language-bash">chmod +x dnsmasq
+./dnsmasq --conf-file=~/config.conf
+</code></pre><p>这样，服务端的配置完成。</p><p>在客户端设置 dns 服务器 ip 为 <code>你的 vps 的 ip</code>，端口为 <code>dnsmasq 监听端口</code>。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/3.html">Nginx 启用 TLS1.3 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/5.html"><span class="nav-arrow">← </span>使用 CloudFlare 实现 DDNS (动态域名解析)</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安装服务"><span class="toc-nav-text">安装服务</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#从仓库安装"><span class="toc-nav-text">从仓库安装</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#编译安装"><span class="toc-nav-text">编译安装</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#配置文件"><span class="toc-nav-text">配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#启动服务"><span class="toc-nav-text">启动服务</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "4",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

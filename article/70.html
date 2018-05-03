@@ -1,0 +1,36 @@
+<!-- build time:Thu May 03 2018 22:55:47 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>OpenResty 默认环境 + 自定义 Nginx 的安装 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>OpenResty 默认环境 + 自定义 Nginx 的安装</h2><p class="post-date">04/20/2018</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>本文介绍 OpenResty 默认环境 + 自定义 Nginx 的安装方式。<br><a id="more"></a></p><p>首先对标题进行解释： OpenResty 现行最新版本为 1.13.6.1（with Nginx mainline 1.13.6），这就是为什么标题强调自定义 Nginx 的原因，就是要不使用 OpenResty 内置的 Nginx 而是由我们自己选择和一并编译整合。</p><p>而标题中提到的默认环境，也就是 OpenResty 环境的默认安装（除 Nginx 外）。</p><h2 id="替换-Nginx"><a href="#替换-Nginx" class="headerlink" title="替换 Nginx"></a>替换 Nginx</h2><p>首先下载 OpenResty 1.13.6.1 到本地：</p><pre><code class="language-bash">wget https://openresty.org/download/openresty-1.13.6.1.tar.gz &amp;&amp; tar -zxf openresty-1.13.6.1.tar.gz
+cd openresty-1.13.6.1
+</code></pre><p>进入 OpenResty 目录后，在 /bundle/ 路径下你会看到有个叫 <code>nginx-1.13.6</code> 的文件夹，是的，把这个文件里面的内容换成你想使用的 Nginx 版本。</p><h2 id="安装-OpenResty"><a href="#安装-OpenResty" class="headerlink" title="安装 OpenResty"></a>安装 OpenResty</h2><p>然后就可以开始安装了。安装分为两个部分：自定义 Nginx 的安装和 OpenResty 默认环境的安装。其中 Nginx 的安装和不使用 OpenResty 安装时是一样的，而 OpenResty 的安装只需要 <code>./configure</code> 就能实现默认环境安装。</p><p>这里引用下官网的安装说明（<a href="https://openresty.org/en/installation.html" rel="external nofollow noopener noreferrer" target="_blank">via</a>）：</p><pre><code class="language-bash">cd openresty-VERSION/
+./configure
+make
+make install
+</code></pre><p>那么在使用自定义 Nginx 后，安装过程就是这样的：</p><pre><code class="language-bash"># 进入 OpenResty 根目录
+# 需要注意的是 Nginx 放在它的子目录内
+cd openresty-1.13.6.1
+
+# 省略 Nginx 的编译参数
+# 这里 configure 只需要写入你的 Nginx 的编译参数
+./configure \
+... \
+... \
+...
+
+# 防止 Werror=strict-aliasing 报错
+export CFLAGS=&quot;-Wno-strict-aliasing&quot;
+
+# 然后就是 make 了
+make -j2
+make install
+</code></pre><p>顺便补充一句，本博客现行 OpenResty 环境就采用上述安装方式，使用的 Nginx 版本为 mainline 1.13.9 并自行修改过。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/69.html">OpenResty 的两种正则模式匹配 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/71.html"><span class="nav-arrow">← </span>本博客 OpenResty 环境安装</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#替换-Nginx"><span class="toc-nav-text">替换 Nginx</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安装-OpenResty"><span class="toc-nav-text">安装 OpenResty</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "70",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

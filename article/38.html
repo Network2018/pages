@@ -1,0 +1,73 @@
+<!-- build time:Thu May 03 2018 22:55:47 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>魔改 BBR 手动安装教程（Debian 篇） | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>魔改 BBR 手动安装教程（Debian 篇）</h2><p class="post-date">12/23/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>之前有写过 <a href="https://sometimesnaive.org/article/26" rel="external nofollow noopener noreferrer" target="_blank">CentOS 的手动安装教程</a>，这次来写 <code>Debian</code> 篇。<br><a id="more"></a></p><p>关于本项目的相关脚本，请看这里：<a href="https://sometimesnaive.org/article/37" rel="external nofollow noopener noreferrer" target="_blank">魔改 BBR 脚本 - tcp_nanqinlang</a></p><p>本文所述教程，对应脚本为 <code>pro</code> 版本。</p><h2 id="所需环境"><a href="#所需环境" class="headerlink" title="所需环境"></a>所需环境</h2><ol><li><code>Debian 7+</code></li><li><code>KVM</code></li></ol><p>可以这样查看你的虚拟化技术：</p><pre><code class="language-bash">apt-get install -y virt-what
+virt-what
+</code></pre><h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p><code>如果决定手动安装，请务必严格按照本文所述顺序（不可更改命令执行顺序或省略步骤，会出事的），一步步执行并确保执行无误</code></p><h3 id="更换内核"><a href="#更换内核" class="headerlink" title="更换内核"></a>更换内核</h3><p>编译魔改算法需要你安装有 <code>linux-image</code> <code>linux-headers-all</code> <code>linux-headers-$bit</code> 三个内核。</p><h4 id="安装新内核"><a href="#安装新内核" class="headerlink" title="安装新内核"></a>安装新内核</h4><p>以 mainline v4.10.10 为例。</p><pre><code class="language-bash"># 确认你的系统是 32 or 64 位
+bit=`uname -m`
+
+# 64 位
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-image-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_amd64.deb
+dpkg -i linux-image-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_amd64.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-headers-4.10.10-041010_4.10.10-041010.201704120813_all.deb
+dpkg -i linux-headers-4.10.10-041010_4.10.10-041010.201704120813_all.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-headers-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_amd64.deb
+dpkg -i linux-headers-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_amd64.deb
+
+# 32 位
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-image-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_i386.deb
+dpkg -i linux-image-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_i386.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-headers-4.10.10-041010_4.10.10-041010.201704120813_all.deb
+dpkg -i linux-headers-4.10.10-041010_4.10.10-041010.201704120813_all.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.10.10/linux-headers-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_i386.deb
+dpkg -i linux-headers-4.10.10-041010-lowlatency_4.10.10-041010.201704120813_i386.deb
+</code></pre><h4 id="删除旧内核"><a href="#删除旧内核" class="headerlink" title="删除旧内核"></a>删除旧内核</h4><p>删除除了 v4.10.10 版本以外的所有内核。</p><pre><code class="language-bash"># 列出所有多余内核
+# 返回的一长串就是下面的“内核名”
+dpkg -l|grep linux-image   | awk &#39;{print $2}&#39; | grep -v &quot;4.10.10&quot;
+dpkg -l|grep linux-headers | awk &#39;{print $2}&#39; | grep -v &quot;4.10.10&quot;
+
+# 对上面列出的每个内核都执行一次删除指令
+apt-get purge -y “内核名”
+</code></pre><h4 id="检查内核"><a href="#检查内核" class="headerlink" title="检查内核"></a>检查内核</h4><p>先运行以下命令：</p><pre><code class="language-bash">update-grub
+</code></pre><p>执行完毕后，再次检查当前内核是否已安装无误：</p><pre><code class="language-bash">dpkg -l|grep linux-image   | awk &#39;{print $2}&#39;
+dpkg -l|grep linux-headers | awk &#39;{print $2}&#39;
+
+# 返回如下值
+linux-image-4.10.10-041010-lowlatency
+linux-headers-4.10.10-041010
+linux-headers-4.10.10-041010-lowlatency
+</code></pre><p>然后就可以重启你的 VPS 了。开机后进入第二步。</p><h3 id="启用算法"><a href="#启用算法" class="headerlink" title="启用算法"></a>启用算法</h3><p>经过第一步，已经成功的更换了系统内核。接下来，要启用魔改 BBR，按照顺序执行以下：</p><pre><code class="language-bash"># dependences
+apt-get update &amp;&amp; apt-get install -y build-essential
+
+# Makefile
+## Debian 7/8
+wget -O Makefile https://raw.githubusercontent.com/nanqinlang-tcp/tcp_nanqinlang/master/Makefile/Makefile-Debian7or8
+## Debian 9
+wget -O Makefile https://raw.githubusercontent.com/nanqinlang-tcp/tcp_nanqinlang/master/Makefile/Makefile-Debian9
+
+# source
+wget https://raw.githubusercontent.com/nanqinlang-tcp/tcp_nanqinlang/master/General/Debian/source/kernel-v4.12andbelow/tcp_nanqinlang.c
+
+# make + install
+make &amp;&amp; make install
+
+# sysctl
+echo -e &quot;\nnet.core.default_qdisc=fq&quot; &gt;&gt; /etc/sysctl.conf
+echo -e &quot;net.ipv4.tcp_congestion_control=nanqinlang\c&quot; &gt;&gt; /etc/sysctl.conf
+</code></pre><h2 id="检查状态"><a href="#检查状态" class="headerlink" title="检查状态"></a>检查状态</h2><p>以上过程均完成后，使用以下命令检查是否已成功启用魔改 BBR：</p><pre><code class="language-bash">sysctl net.ipv4.tcp_available_congestion_control | awk &#39;{print $3}&#39;
+# 返回值：
+nanqinlang
+
+lsmod | grep nanqinlang
+# 返回值（类似于）：
+tcp_nanqinlang    6053  18
+</code></pre></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/37.html">魔改 BBR 一键脚本 for Debian &amp; CentOS <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/39.html"><span class="nav-arrow">← </span>OpenVZ 魔改 BBR - LKL 一键脚本</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#所需环境"><span class="toc-nav-text">所需环境</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安装步骤"><span class="toc-nav-text">安装步骤</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#更换内核"><span class="toc-nav-text">更换内核</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#安装新内核"><span class="toc-nav-text">安装新内核</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#删除旧内核"><span class="toc-nav-text">删除旧内核</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#检查内核"><span class="toc-nav-text">检查内核</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#启用算法"><span class="toc-nav-text">启用算法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#检查状态"><span class="toc-nav-text">检查状态</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "38",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

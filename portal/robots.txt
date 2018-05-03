@@ -149,8 +149,6 @@ Disallow: /
 
 
 User-agent: Googlebot
-Disallow: /status/
-Disallow: /portal/404
-Crawl-delay: 60
+Disallow: /
 
 Sitemap: https://sometimesnaive.org/sitemap.xml

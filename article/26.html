@@ -1,0 +1,54 @@
+<!-- build time:Thu May 03 2018 22:55:47 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>魔改 BBR 手动安装教程（CentOS 篇） | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>魔改 BBR 手动安装教程（CentOS 篇）</h2><p class="post-date">11/17/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>因为时不时就会有问脚本怎么怎么样的，为了方便各位的理解和自行调试，我还是决定把一步步的手动教程写出来。这次先出 <code>CentOS</code> 篇。<br><a id="more"></a></p><p>关于本项目的相关脚本，请看这里：<a href="https://sometimesnaive.org/article/37" rel="external nofollow noopener noreferrer" target="_blank">魔改 BBR 脚本 - tcp_nanqinlang</a></p><h2 id="所需环境"><a href="#所需环境" class="headerlink" title="所需环境"></a>所需环境</h2><ol><li><code>CentOS 6/7</code></li><li><code>KVM</code></li></ol><p>可以这样查看你的虚拟化技术：</p><pre><code class="language-bash">yum install -y virt-what
+virt-what
+</code></pre><h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p><code>如果决定手动安装，请务必严格按照本文所述顺序（不可更改命令执行顺序或省略步骤，会出事的），一步步执行并确保执行无误</code></p><h3 id="更换内核"><a href="#更换内核" class="headerlink" title="更换内核"></a>更换内核</h3><p>编译魔改算法需要你安装有 <code>linux-ml-4.12.10</code> <code>linux-ml-devel-4.12.10</code> <code>linux-ml-headers-4.12.10</code> 三个内核。本文以 mainline v4.12.10 为例。</p><p>1.使用以下命令删除旧内核。删除了旧内核才能安装新内核：</p><pre><code class="language-bash"># 查看当前已安装的所有内核
+# 返回的一长串就是下面的“内核名”
+# 对每个内核都执行一次删除指令（其中会有一个内核报错删除不了，那个是重启后更换了运行内核后才能删除的重启前的（当前的）运行内核，等你根据后面的步骤重启后再删除那个内核）
+rpm -qa | grep kernel | grep -v &quot;4.12.10&quot;
+
+# 删除内核
+yum remove -y “内核名”
+</code></pre><p>2.使用以下命令安装新内核（linux-devel-4.12.10 和 linux-headers-4.12.10）：</p><pre><code class="language-bash"># CentOS 6
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-4.12.10-1.el6.elrepo.x86_64.rpm &amp;&amp; yum install -y kernel-ml-devel-4.12.10-1.el6.elrepo.x86_64.rpm
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-devel-4.12.10-1.el6.elrepo.x86_64.rpm &amp;&amp; yum install -y kernel-ml-devel-4.12.10-1.el6.elrepo.x86_64.rpm
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-headers-4.12.10-1.el6.elrepo.x86_64.rpm &amp;&amp; yum  install -y kernel-ml-headers-4.12.10-1.el6.elrepo.x86_64.rpm
+sed -i &#39;/default=/d&#39; /boot/grub/grub.conf &amp;&amp; echo -e &quot;\ndefault=0\c&quot; &gt;&gt; /boot/grub/grub.conf
+
+# CentOS 7
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-4.12.10-1.el7.elrepo.x86_64.rpm &amp;&amp; yum install -y kernel-ml-devel-4.12.10-1.el7.elrepo.x86_64.rpm
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-devel-4.12.10-1.el7.elrepo.x86_64.rpm &amp;&amp; yum install -y kernel-ml-devel-4.12.10-1.el7.elrepo.x86_64.rpm
+wget https://raw.githubusercontent.com/nanqinlang/CentOS-kernel/master/kernel-ml-headers-4.12.10-1.el7.elrepo.x86_64.rpm &amp;&amp; yum  install -y kernel-ml-headers-4.12.10-1.el7.elrepo.x86_64.rpm
+grub2-mkconfig -o /boot/grub2/grub.cfg &amp;&amp; grub2-set-default 0
+</code></pre><p>3.以上两步执行完成后再次检查当前已安装内核：</p><pre><code class="language-bash">rpm -qa | grep kernel
+</code></pre><p>确认操作无误后，<code>重启你的 VPS</code>。</p><p>4.重启开机后，删除重启前剩下的那个旧内核（在上文提到的）：</p><pre><code class="language-bash"># 删除重启前剩下的那个旧内核
+rpm -qa | grep kernel | grep -v &quot;4.12.10&quot;
+yum remove -y “内核名”
+</code></pre><h3 id="安装算法"><a href="#安装算法" class="headerlink" title="安装算法"></a>安装算法</h3><p>5.经过以上步骤后，再次确认你的内核：</p><pre><code class="language-bash"># 指令
+rpm -qa | grep kernel
+
+# 返回值（大概是这样）
+linux-kernel-ml-4.12.10-1
+linux-kernel-ml-devel-4.12.10-1
+linux-kernel-ml-headers-4.12.10-1
+</code></pre><p>确认返回值相同后，就可以执行以下了：</p><pre><code class="language-bash">yum groupinstall -y &quot;Development Tools&quot;
+
+wget https://raw.githubusercontent.com/nanqinlang-tcp/tcp_nanqinlang/General/CentOS/source/tcp_nanqinlang.c
+wget -O Makefile https://raw.githubusercontent.com/nanqinlang-tcp/tcp_nanqinlang/master/Makefile/Makefile-CentOS
+make &amp;&amp; make install
+
+sed -i &#39;/net\.ipv4\.tcp_congestion_control/d&#39; /etc/sysctl.conf
+echo -e &quot;\nnet.ipv4.tcp_congestion_control=nanqinlang\c&quot; &gt;&gt; /etc/sysctl.conf &amp;&amp; sysctl -p
+</code></pre><p>以上均执行无误后，返回例如如下即安装成功：</p><pre><code class="language-bash">root@sometimesnaive:# lsmod | grep nanqinlang
+tcp_nanqinlang  7014  23
+</code></pre></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/25.html">编译安装 libsodium <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/27.html"><span class="nav-arrow">← </span>Nginx 反代 Google（基本篇）</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#所需环境"><span class="toc-nav-text">所需环境</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#安装步骤"><span class="toc-nav-text">安装步骤</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#更换内核"><span class="toc-nav-text">更换内核</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#安装算法"><span class="toc-nav-text">安装算法</span></a></li></ol></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "26",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

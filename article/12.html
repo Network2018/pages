@@ -1,0 +1,60 @@
+<!-- build time:Thu May 03 2018 22:55:48 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>本博客 Nginx 配置（系列一） 安全篇 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>本博客 Nginx 配置（系列一） 安全篇</h2><p class="post-date">10/23/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>首先提一下，本文标题所提到的安全并不是指防C、防D的安全，而是 Web 端和客户端间的数据传输的安全。</p><p>我计划以三篇文章介绍一下本博客所用 Nginx 的相关配置，现在先从安全篇开始。<br><a id="more"></a></p><h2 id="隐藏不需要的信息"><a href="#隐藏不需要的信息" class="headerlink" title="隐藏不需要的信息"></a>隐藏不需要的信息</h2><p>Nginx 默认会在响应头中加入“表明自己是 “Nginx” 和自己当前的版本号”的信息，这些信息通常并不必要、显得多余，却往往会让攻击者了解到你的 Web 服务对应的漏洞，让攻击者有机可乘。<code>隐藏版本号可以提高安全性</code>。要隐藏 Nginx 的版本号，只需加入下面这行配置：</p><pre><code class="language-nginx">server_tokens off;
+</code></pre><p>若想要彻底隐藏所用 Web Server 软件的信息，需要修改 Nginx 源码，把 Server Name 对应部分更改后再编译，具体步骤请咨询谷歌老爹（或许我之后也会写个帖子说说）。</p><p>并且，不仅仅是软件版本号，如果想要更加彻底的隐藏 Web Server 相关信息，例如 404、502 等状态页也需要自定义。</p><h2 id="禁用不需要的方式"><a href="#禁用不需要的方式" class="headerlink" title="禁用不需要的方式"></a>禁用不需要的方式</h2><p>由于我的博客只需要 GET、POST 这两种 Request Method，我完全没必要放开例如 TRACE（用于网络诊断）这样的请求方式，说不定哪天就翻车。所以<code>我指定 GET 和 POST 之外的请求，均直接返回 444 状态码</code>（Nginx 的 444 状态码，表示不返回响应正文，立即断开连接）。</p><pre><code class="language-nginx">if ($request_method !~ ^(POST|GET)$ ) {
+    return 444;
+}
+</code></pre><h2 id="限制并发连接数"><a href="#限制并发连接数" class="headerlink" title="限制并发连接数"></a>限制并发连接数</h2><p>Nginx 默认的配置文件 nginx.conf 中有如下描述</p><pre><code class="language-bash">#If enable limit_conn_zone,add &quot;limit_conn perip 10;&quot; to server section.
+#limit_conn_zone $binary_remote_addr zone=perip:10m;
+</code></pre><p>当然，默认配置文件中这项配置是注释掉的。为了限制并发连接数（也能防范下 CC 攻击），我进行了如下配置</p><pre><code class="language-nginx"># 在全局配置 nginx.conf 中
+http {
+    #If enable limit_conn_zone,add &quot;limit_conn perip 10;&quot; to server section.
+    limit_conn_zone $binary_remote_addr zone=perip:10m;
+    . . .
+    include sometimesnaive.conf;
+}
+
+# 在站点配置 sometimesnaive.conf 中
+server {
+    limit_conn perip 10;
+}
+</code></pre><p>关于 limit 模块的更多说明，也可参考我的 <a href="https://sometimesnaive.org/article/32" rel="external nofollow noopener noreferrer" target="_blank">这篇文章</a></p><h2 id="禁止指定-IP-访问"><a href="#禁止指定-IP-访问" class="headerlink" title="禁止指定 IP 访问"></a>禁止指定 IP 访问</h2><p>Nginx 通过 <code>allow</code> 或 <code>deny</code> 参数，放行或禁止特定 IP 访问</p><pre><code class="language-nginx">location / {
+    allow 104.27.148.54;
+    allow 104.27.149.54;
+    allow 2400:cb00:2048:1:0:0:681b:9436;
+    allow 2400:cb00:2048:1:0:0:681b:9536;
+    deny all;
+}
+</code></pre><p>allow 和 deny 按照声明的顺序进行匹配，首条匹配 IP 的访问规则将被启用。在以上例子中，我以 cloudflare 的四个 IP 作为例子。如果访问者是这四个 IP 中的一个就会被放行，其它所有 IP 均会被禁止访问，返回 Forbidden 状态页。</p><p>也可以利用 blacklist.conf 来设置禁止访问站点的黑名单：</p><pre><code class="language-nginx">include blacklist.conf;
+</code></pre><p>blacklist.conf 中写入如下内容</p><pre><code class="language-nginx">allow ip;
+allow ip;
+allow ip;
+. . .
+deny all;
+</code></pre><p>当然，如果不是特殊需求，更建议直接利用 iptables 等防火墙，drop 掉黑名单 IP 的连接。Nginx 的匹配也会消耗 Server 的性能。</p><h2 id="禁止网络爬虫"><a href="#禁止网络爬虫" class="headerlink" title="禁止网络爬虫"></a>禁止网络爬虫</h2><pre><code class="language-nginx">if ($http_user_agent ~* &quot;qihoobot|Baiduspider|Mediapartners-Google|Adsbot-Google|Feedfetcher-Google|Yahoo! Slurp|Yahoo! Slurp China|YoudaoBot|Sosospider|Sogou spider|Sogou web spider|MSNBot|ia_archiver|Tomato Bot&quot;) {
+    return 444;
+}
+</code></pre><p>关于使用 if 禁止网络爬虫的更多说明，也可参考我的 <a href="https://sometimesnaive.org/article/62" rel="external nofollow noopener noreferrer" target="_blank">这篇文章</a></p><h2 id="加入响应头配置"><a href="#加入响应头配置" class="headerlink" title="加入响应头配置"></a>加入响应头配置</h2><p>HTTP 响应头（HTTP Response Header），是 Web 端在接受客户端的合法请求后，返回给客户端的消息头部分。从安全方面考虑，我为本站点加入了以下响应头：</p><pre><code class="language-nginx">add_header Public-Key-Pins &#39;pin-sha256=&quot;sE6SdAkyKReY/Yj6Jt4h2JeD9SHYlqiEi1nly8fgCh4=&quot;; pin-sha256=&quot;Prac0f3S3Qj0Okc3wmWeJFxT3/8kgAKf1XpZh0SjdVQ=&quot;; pin-sha256=&quot;YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=&quot;; max-age=31536000; includeSubDomains&#39; always;
+add_header Strict-Transport-Security &quot;max-age=31536000; includeSubDomains; preload&quot; always;
+add_header X-Frame-Options &quot;deny&quot; always;
+add_header X-Content-Type-Options &quot;nosniff&quot; always;
+add_header X-Xss-Protection &quot;1;mode=block&quot; always;
+add_header Content-Security-Policy &quot;script-src &#39;self&#39; https://www.google-analytics.com https://github.com &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;; style-src &#39;self&#39; https://github.com; img-src &#39;self&#39; https://github.com; font-src &#39;self&#39; https://github.com; media-src &#39;none&#39;; object-src &#39;none&#39;; connect-src &#39;none&#39;; child-src &#39;self&#39; https://github.com http://www.w3.org; sandbox &#39;none&#39;&quot;;
+</code></pre><p>关于 HTTP 响应头的更多细节，请参看我的另一篇文章 <a href="https://sometimesnaive.org/article/9" rel="external nofollow noopener noreferrer" target="_blank">那些站点安全相关的 HTTP 响应头</a></p><h2 id="启用-HTTPS"><a href="#启用-HTTPS" class="headerlink" title="启用 HTTPS"></a>启用 HTTPS</h2><p>超文本传输安全协议（Hypertext Transfer Protocol Secure），简称 HTTPS，是现在各个站点的标配了。加上了 HTTPS 的站点也能在搜索引擎中获得更高的权重。</p><pre><code class="language-nginx">ssl  on;
+ssl_protocols  TLSv1.2 TLSv1.3;
+ssl_certificate  /home/site/crt/naive/LetsEncryptecc-chained.cer;
+ssl_certificate_key  /home/site/crt/naive/LetsEncryptecc.key;
+ssl_prefer_server_ciphers  on;
+ssl_dhparam  /home/site/crt/naive/dh.4096.pem;
+ssl_ciphers  &#39;TLS13-AES-128-GCM-SHA256 TLS13-CHACHA20-POLY1305-SHA256 TLS13-AES-256-GCM-SHA384 TLS13-AES-128-CCM-8-SHA256 TLS13-AES-128-CCM-SHA256 EECDH+ECDSA+AES128 EECDH+aRSA+AES128 RSA+AES128 EECDH+ECDSA+AES256 EECDH+aRSA+AES256 RSA+AES256&#39;;
+</code></pre><p>关于 HTTPS 的更多细节，请参看我的另一篇文章 <a href="https://sometimesnaive.org/article/19" rel="external nofollow noopener noreferrer" target="_blank">Nginx 启用 HTTPS 站点</a></p><p>当然，还有其它一些本帖尚未谈及的 HTTPS 安全相关的方案，<del>例如 Certificate Transparency 和 OCSP Stapling，我会以后补充进来</del>（已写完，传送门如下：<br>2017-10-24 更新：<a href="https://sometimesnaive.org/article/13" rel="external nofollow noopener noreferrer" target="_blank">Nginx 配置 OCSP Stapling</a><br>2017-10-28 更新：<a href="https://sometimesnaive.org/article/15" rel="external nofollow noopener noreferrer" target="_blank">Certificate Transparency 概述</a></p><p>那么，本文就先这样吧。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/11.html">通过 Zoho Mail 创建自己的 Gmail 域名邮箱 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/13.html"><span class="nav-arrow">← </span>Nginx 启用 OCSP Stapling</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#隐藏不需要的信息"><span class="toc-nav-text">隐藏不需要的信息</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#禁用不需要的方式"><span class="toc-nav-text">禁用不需要的方式</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#限制并发连接数"><span class="toc-nav-text">限制并发连接数</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#禁止指定-IP-访问"><span class="toc-nav-text">禁止指定 IP 访问</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#禁止网络爬虫"><span class="toc-nav-text">禁止网络爬虫</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#加入响应头配置"><span class="toc-nav-text">加入响应头配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#启用-HTTPS"><span class="toc-nav-text">启用 HTTPS</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "12",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

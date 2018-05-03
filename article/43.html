@@ -1,0 +1,96 @@
+<!-- build time:Thu May 03 2018 22:55:47 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 基础教程（一）建立一个网站 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/atom.xml" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/atom.xml" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 基础教程（一）建立一个网站</h2><p class="post-date">12/31/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>鉴于毕竟多数 Nginx 用户对基本配置项的理解几乎为 0，还是决定来写一些基础的东西。遂有了这个<code>Nginx 基础教程</code>系列。本文介绍用 Nginx 建立一个网站所需要的最基本的配置项。<br><a id="more"></a></p><h2 id="Nginx-的配置文件构成"><a href="#Nginx-的配置文件构成" class="headerlink" title="Nginx 的配置文件构成"></a>Nginx 的配置文件构成</h2><p>Nginx 的默认配置文件一般为 <code>nginx.conf</code>,这个文件内你需要写入 Nginx 的最基本的运行配置，这个文件也被称作 Nginx 的<code>全局配置文件</code>。这个文件内的配置对整个 Nginx 生效，且实际上 Nginx 只会读取这个文件内包括的配置，它是 Nginx 的唯一配置文件，其它的配置文件都需要使用 include 来引入。</p><p>与之对应的，有另外一个概念，叫做<code>站点配置文件</code>。这个文件一般可有可无。文件名可以随意，可以命名为例如<code>website.conf</code>。如果要使用额外的配置文件，需要在全局配置文件 nginx.conf 的 http 段配置中写入下面这行，来将这个配置导入到 Nginx：</p><pre><code class="language-nginx">http {
+    ...
+    include website.conf;
+}
+</code></pre><h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>上文已提到，nginx.conf 是全局配置文件。这个文件需要至少包括下列配置项：</p><pre><code class="language-nginx"># 运行 Nginx 的用户组和用户名。一般不建议使用 root 账户，可以另外创建一个 www www 用户
+user                www www;
+# 运行 Nginx 的进程数，可以设置为 CPU 核心数。我建议指定为 auto 自动
+worker_processes    auto;
+# 错误日志的生成路径和记录等级
+error_log            /home/nginx/logs/error.log crit;
+# 运行 Nginx 的 pid 生成路径
+pid                    /home/nginx/sbin/nginx.pid;
+# 最大访问文件数限制
+worker_rlimit_nofile  2048;
+
+events
+    {
+        # Nginx 使用的事件模型，有其它值例如 kqueue 等。一般保持这个值为 epoll 即可
+        use                    epoll;
+        #单个 worker process 进程的最大并发链接数。所以 Nginx 最大总连接数 = [worker_processes * worker_connections]
+        worker_connections    2048;
+    }
+
+http
+    {
+        # Nginx 的默认指定文件类型名称的配置文件
+        include            mime.types;
+        # Nginx 的默认文件类型
+        default_type    application/octet-stream;
+
+        # 导入你的站点配置文件
+        include            website.conf;
+}
+</code></pre><h2 id="站点配置"><a href="#站点配置" class="headerlink" title="站点配置"></a>站点配置</h2><p>那么接下来就要写站点配置了，这里面包括了你要建立的网站的配置项。本文按照 HTTP 和 HTTPS 列举出两种最基本的站点配置。</p><h3 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h3><pre><code class="language-nginx">server
+    {
+        # Nginx 的监听端口，其实可以随意。这里只是因为 HTTP 站点访问默认是 80 端口
+        listen  80;
+
+        # 你的网站的文件的所在根路径，使用绝对路径
+        root    /home/site;
+
+        # 访问地址未指定要访问的文件名时，默认访问的文件名
+        # 例如访问某网站首页，这个 index.php 就是首页的文件
+        index   index.php;
+
+        # 访问日志的生成路径
+        access_log   /home/nginx/access-log;
+
+        # 你网站要使用的域名
+        server_name  example.example.com;
+}
+</code></pre><h3 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h3><pre><code class="language-nginx">server
+    {
+        # Nginx 的监听端口，其实可以随意。这里只是因为 HTTPS 站点访问默认是 443 端口
+        listen  443;
+
+        # 你的网站的文件的所在根路径，使用绝对路径
+        root    /home/site;
+
+        # 访问地址未指定要访问的文件名时，默认访问的文件名
+        # 例如访问某网站首页，这个 index.php 就是首页的文件
+        index   index.php;
+
+        # 访问日志的生成路径
+        access_log   /home/nginx/access-log;
+
+        # 你网站要使用的域名
+        server_name  example.example.com;
+
+        # 下面是指定 SSL 的相关配置，均是必填项目
+
+        # 开启 SSL
+        ssl  on;
+
+        # 使用的 TLS 版本
+        ssl_protocols  TLSv1.1 TLSv1.2;
+
+        # SSL 站点证书的所在路径，使用绝对路径
+        ssl_certificate      /home/crt/example.cer;
+
+        # SSL 站点证书密钥的所在路径，使用绝对路径
+        ssl_certificate_key  /home/crt/example.key;
+}
+</code></pre></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/42.html">Nginx 的 timeout 配置 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/44.html"><span class="nav-arrow">← </span>Nginx 启用 proxy_buffer 缓冲</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Nginx-的配置文件构成"><span class="toc-nav-text">Nginx 的配置文件构成</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#全局配置"><span class="toc-nav-text">全局配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#站点配置"><span class="toc-nav-text">站点配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#HTTP"><span class="toc-nav-text">HTTP</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#HTTPS"><span class="toc-nav-text">HTTPS</span></a></li></ol></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "43",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

@@ -5,410 +5,410 @@
   <subtitle>虚拟主机技术基础</subtitle>
   <link href="//portal/atom.xml" rel="self"/>
   
-  <link href="https://sometimesnaive.org/"/>
+  <link href="https://gh.sometimesnaive.org/"/>
   <updated>2018-05-01T11:38:29.799Z</updated>
-  <id>https://sometimesnaive.org/</id>
+  <id>https://gh.sometimesnaive.org/</id>
   
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
     <title>Nginx internal 仅内部调用</title>
-    <link href="https://sometimesnaive.org/article/72"/>
-    <id>https://sometimesnaive.org/article/72</id>
+    <link href="https://gh.sometimesnaive.org/article/72.html"/>
+    <id>https://gh.sometimesnaive.org/article/72.html</id>
     <published>2018-05-01T11:39:00.000Z</published>
     <updated>2018-05-01T11:38:29.799Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 中 internal 的用法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 中 internal 的用法。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>本博客 OpenResty 环境安装</title>
-    <link href="https://sometimesnaive.org/article/71"/>
-    <id>https://sometimesnaive.org/article/71</id>
+    <link href="https://gh.sometimesnaive.org/article/71.html"/>
+    <id>https://gh.sometimesnaive.org/article/71.html</id>
     <published>2018-04-21T16:10:00.000Z</published>
     <updated>2018-04-21T16:10:40.993Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍本博客 OpenResty 环境安装的过程。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍本博客 OpenResty 环境安装的过程。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="OpenResty" scheme="https://sometimesnaive.org/category/website/openresty/"/>
+      <category term="OpenResty" scheme="https://gh.sometimesnaive.org/category/website/openresty/"/>
     
     
   </entry>
   
   <entry>
     <title>OpenResty 默认环境 + 自定义 Nginx 的安装</title>
-    <link href="https://sometimesnaive.org/article/70"/>
-    <id>https://sometimesnaive.org/article/70</id>
+    <link href="https://gh.sometimesnaive.org/article/70.html"/>
+    <id>https://gh.sometimesnaive.org/article/70.html</id>
     <published>2018-04-20T08:38:00.000Z</published>
     <updated>2018-04-20T08:39:06.318Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 OpenResty 默认环境 + 自定义 Nginx 的安装方式。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 OpenResty 默认环境 + 自定义 Nginx 的安装方式。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="OpenResty" scheme="https://sometimesnaive.org/category/website/openresty/"/>
+      <category term="OpenResty" scheme="https://gh.sometimesnaive.org/category/website/openresty/"/>
     
     
   </entry>
   
   <entry>
     <title>OpenResty 的两种正则模式匹配</title>
-    <link href="https://sometimesnaive.org/article/69"/>
-    <id>https://sometimesnaive.org/article/69</id>
+    <link href="https://gh.sometimesnaive.org/article/69.html"/>
+    <id>https://gh.sometimesnaive.org/article/69.html</id>
     <published>2018-04-19T12:19:00.000Z</published>
     <updated>2018-04-19T12:59:08.000Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 OpenResty 的两种正则模式匹配。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 OpenResty 的两种正则模式匹配。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="OpenResty" scheme="https://sometimesnaive.org/category/website/openresty/"/>
+      <category term="OpenResty" scheme="https://gh.sometimesnaive.org/category/website/openresty/"/>
     
     
   </entry>
   
   <entry>
     <title>开始使用 ngx_lua</title>
-    <link href="https://sometimesnaive.org/article/68"/>
-    <id>https://sometimesnaive.org/article/68</id>
+    <link href="https://gh.sometimesnaive.org/article/68.html"/>
+    <id>https://gh.sometimesnaive.org/article/68.html</id>
     <published>2018-04-18T06:05:00.000Z</published>
     <updated>2018-04-20T04:02:28.360Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 ngx-lua-module 的安装方式。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 ngx-lua-module 的安装方式。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="OpenResty" scheme="https://sometimesnaive.org/category/website/openresty/"/>
+      <category term="OpenResty" scheme="https://gh.sometimesnaive.org/category/website/openresty/"/>
     
     
   </entry>
   
   <entry>
     <title>RustRssBot - Telegram RSS Bot</title>
-    <link href="https://sometimesnaive.org/article/67"/>
-    <id>https://sometimesnaive.org/article/67</id>
+    <link href="https://gh.sometimesnaive.org/article/67.html"/>
+    <id>https://gh.sometimesnaive.org/article/67.html</id>
     <published>2018-03-31T12:46:00.000Z</published>
     <updated>2018-03-31T12:59:26.401Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 RustRssBot 及其自建配置。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 RustRssBot 及其自建配置。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Repository" scheme="https://sometimesnaive.org/category/linux/repo/"/>
+      <category term="Repository" scheme="https://gh.sometimesnaive.org/category/linux/repo/"/>
     
     
   </entry>
   
   <entry>
     <title>开始使用无特性博客</title>
-    <link href="https://sometimesnaive.org/article/66"/>
-    <id>https://sometimesnaive.org/article/66</id>
+    <link href="https://gh.sometimesnaive.org/article/66.html"/>
+    <id>https://gh.sometimesnaive.org/article/66.html</id>
     <published>2018-03-24T17:17:00.000Z</published>
     <updated>2018-03-24T17:17:48.356Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文记述即日起本博客所开的那些倒车。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文记述即日起本博客所开的那些倒车。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>开始使用 LibreSSL</title>
-    <link href="https://sometimesnaive.org/article/65"/>
-    <id>https://sometimesnaive.org/article/65</id>
+    <link href="https://gh.sometimesnaive.org/article/65.html"/>
+    <id>https://gh.sometimesnaive.org/article/65.html</id>
     <published>2018-03-23T17:00:00.000Z</published>
     <updated>2018-03-24T11:31:39.432Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍以 LibreSSL 作为 Nginx 加密库的配置方法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍以 LibreSSL 作为 Nginx 加密库的配置方法。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>Nginx 启用 BoringSSL</title>
-    <link href="https://sometimesnaive.org/article/64"/>
-    <id>https://sometimesnaive.org/article/64</id>
+    <link href="https://gh.sometimesnaive.org/article/64.html"/>
+    <id>https://gh.sometimesnaive.org/article/64.html</id>
     <published>2018-03-19T15:05:00.000Z</published>
     <updated>2018-03-24T11:30:48.584Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍以 BoringSSL 作为 Nginx 加密库的配置方法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍以 BoringSSL 作为 Nginx 加密库的配置方法。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>传送门：魔改BBR - tcp_nanqinlang 集合</title>
-    <link href="https://sometimesnaive.org/article/63"/>
-    <id>https://sometimesnaive.org/article/63</id>
+    <link href="https://gh.sometimesnaive.org/article/63.html"/>
+    <id>https://gh.sometimesnaive.org/article/63.html</id>
     <published>2018-03-18T16:15:00.000Z</published>
     <updated>2018-04-23T15:03:28.306Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文是作为我的魔改 BBR 的一个集合，因为我的相关主题还算比较多，所以在此集中列举出来。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文是作为我的魔改 BBR 的一个集合，因为我的相关主题还算比较多，所以在此集中列举出来。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Shell" scheme="https://sometimesnaive.org/category/linux/shell/"/>
+      <category term="Shell" scheme="https://gh.sometimesnaive.org/category/linux/shell/"/>
     
     
   </entry>
   
   <entry>
     <title>Nginx 禁止指定 UA 访问</title>
-    <link href="https://sometimesnaive.org/article/62"/>
-    <id>https://sometimesnaive.org/article/62</id>
+    <link href="https://gh.sometimesnaive.org/article/62.html"/>
+    <id>https://gh.sometimesnaive.org/article/62.html</id>
     <published>2018-03-17T11:03:00.000Z</published>
     <updated>2018-03-24T11:25:59.200Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 禁止指定 UA 访问的配置。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:35 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 禁止指定 UA 访问的配置。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>acme - SSL 证书申请脚本</title>
-    <link href="https://sometimesnaive.org/article/61"/>
-    <id>https://sometimesnaive.org/article/61</id>
+    <link href="https://gh.sometimesnaive.org/article/61.html"/>
+    <id>https://gh.sometimesnaive.org/article/61.html</id>
     <published>2018-03-14T14:10:00.000Z</published>
     <updated>2018-03-24T11:03:38.087Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;acme.sh 是一款用于签发 &lt;code&gt;Let&amp;#39;s Encrypt&lt;/code&gt; 证书的脚本。本脚本是原项目的生成证书指令的集合。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;acme.sh 是一款用于签发 &lt;code&gt;Let&amp;#39;s Encrypt&lt;/code&gt; 证书的脚本。本脚本是原项目的生成证书指令的集合。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Shell" scheme="https://sometimesnaive.org/category/linux/shell/"/>
+      <category term="Shell" scheme="https://gh.sometimesnaive.org/category/linux/shell/"/>
     
     
   </entry>
   
   <entry>
     <title>highlight.js - 代码高亮插件</title>
-    <link href="https://sometimesnaive.org/article/60"/>
-    <id>https://sometimesnaive.org/article/60</id>
+    <link href="https://gh.sometimesnaive.org/article/60.html"/>
+    <id>https://gh.sometimesnaive.org/article/60.html</id>
     <published>2018-03-09T15:02:00.000Z</published>
     <updated>2018-03-24T11:10:49.063Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本博客使用 highlight.js 提供代码高亮。本文介绍其基本用法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本博客使用 highlight.js 提供代码高亮。本文介绍其基本用法。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Repository" scheme="https://sometimesnaive.org/category/linux/repo/"/>
+      <category term="Repository" scheme="https://gh.sometimesnaive.org/category/linux/repo/"/>
     
     
   </entry>
   
   <entry>
     <title>Unbound - 强大的 DNS 服务</title>
-    <link href="https://sometimesnaive.org/article/59"/>
-    <id>https://sometimesnaive.org/article/59</id>
+    <link href="https://gh.sometimesnaive.org/article/59.html"/>
+    <id>https://gh.sometimesnaive.org/article/59.html</id>
     <published>2018-03-07T15:25:00.000Z</published>
     <updated>2018-03-24T11:12:03.231Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;Unbound 是一款强大的 DNS 服务，&lt;a href=&quot;https://www.unbound.net&quot;&gt;官网&lt;/a&gt;，提供 非标端口 &amp;amp;&amp;amp; 本地缓存 &amp;amp;&amp;amp; 强制 TCP 查询 等功能。本文讲述它的基本配置方法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;Unbound 是一款强大的 DNS 服务，&lt;a href=&quot;https://www.unbound.net&quot; rel=&quot;external nofollow noopener noreferrer&quot; target=&quot;_blank&quot;&gt;官网&lt;/a&gt;，提供 非标端口 &amp;amp;&amp;amp; 本地缓存 &amp;amp;&amp;amp; 强制 TCP 查询 等功能。本文讲述它的基本配置方法。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Repository" scheme="https://sometimesnaive.org/category/linux/repo/"/>
+      <category term="Repository" scheme="https://gh.sometimesnaive.org/category/linux/repo/"/>
     
     
   </entry>
   
   <entry>
     <title>本博客 Nginx 配置（第二季）</title>
-    <link href="https://sometimesnaive.org/article/58"/>
-    <id>https://sometimesnaive.org/article/58</id>
+    <link href="https://gh.sometimesnaive.org/article/58.html"/>
+    <id>https://gh.sometimesnaive.org/article/58.html</id>
     <published>2018-03-04T20:10:00.000Z</published>
     <updated>2018-03-24T11:28:13.032Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;在之前，本博客完成了 “本博客 Nginx 配置” 的系列文章。而就在这之后，我又对着自己的配置文件唰唰唰的改了起来。遂有了这里的第二季。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;在之前，本博客完成了 “本博客 Nginx 配置” 的系列文章。而就在这之后，我又对着自己的配置文件唰唰唰的改了起来。遂有了这里的第二季。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>Nginx 配置 HTTP 跳转 HTTPS</title>
-    <link href="https://sometimesnaive.org/article/57"/>
-    <id>https://sometimesnaive.org/article/57</id>
+    <link href="https://gh.sometimesnaive.org/article/57.html"/>
+    <id>https://gh.sometimesnaive.org/article/57.html</id>
     <published>2018-02-23T13:00:00.000Z</published>
     <updated>2018-03-24T11:25:33.745Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 访问 HTTP 跳转 HTTPS 的 4 种配置方式。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:35 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 访问 HTTP 跳转 HTTPS 的 4 种配置方式。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>Nginx 启用 HTTP/2</title>
-    <link href="https://sometimesnaive.org/article/56"/>
-    <id>https://sometimesnaive.org/article/56</id>
+    <link href="https://gh.sometimesnaive.org/article/56.html"/>
+    <id>https://gh.sometimesnaive.org/article/56.html</id>
     <published>2018-02-20T17:20:00.000Z</published>
     <updated>2018-04-07T05:58:26.064Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:58 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 启用 HTTP/2 的配置方法。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:35 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍 Nginx 启用 HTTP/2 的配置方法。&lt;br&gt;
     
     </summary>
     
-      <category term="Website" scheme="https://sometimesnaive.org/category/website/"/>
+      <category term="Website" scheme="https://gh.sometimesnaive.org/category/website/"/>
     
-      <category term="Nginx" scheme="https://sometimesnaive.org/category/website/nginx/"/>
+      <category term="Nginx" scheme="https://gh.sometimesnaive.org/category/website/nginx/"/>
     
     
   </entry>
   
   <entry>
     <title>apt-get：there is no public key available</title>
-    <link href="https://sometimesnaive.org/article/55"/>
-    <id>https://sometimesnaive.org/article/55</id>
+    <link href="https://gh.sometimesnaive.org/article/55.html"/>
+    <id>https://gh.sometimesnaive.org/article/55.html</id>
     <published>2018-02-11T16:00:00.000Z</published>
     <updated>2018-03-24T11:16:13.960Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍如何修复 “apt-get：there is no public key available” 报错。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍如何修复 “apt-get：there is no public key available” 报错。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Technique" scheme="https://sometimesnaive.org/category/linux/technique/"/>
+      <category term="Technique" scheme="https://gh.sometimesnaive.org/category/linux/technique/"/>
     
     
   </entry>
   
   <entry>
     <title>OpenVZ 魔改 BBR - Rinetd 一键脚本</title>
-    <link href="https://sometimesnaive.org/article/54"/>
-    <id>https://sometimesnaive.org/article/54</id>
+    <link href="https://gh.sometimesnaive.org/article/54.html"/>
+    <id>https://gh.sometimesnaive.org/article/54.html</id>
     <published>2018-02-06T04:50:00.000Z</published>
     <updated>2018-03-24T11:07:28.921Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;这里是 &lt;a href=&quot;https://sometimesnaive.org/article/37&quot;&gt;tcp_nanqinlang&lt;/a&gt; 的 &lt;code&gt;Rinetd&lt;/code&gt; 分支。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;这里是 &lt;a href=&quot;https://sometimesnaive.org/article/37&quot; rel=&quot;external nofollow noopener noreferrer&quot; target=&quot;_blank&quot;&gt;tcp_nanqinlang&lt;/a&gt; 的 &lt;code&gt;Rinetd&lt;/code&gt; 分支。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Shell" scheme="https://sometimesnaive.org/category/linux/shell/"/>
+      <category term="Shell" scheme="https://gh.sometimesnaive.org/category/linux/shell/"/>
     
     
   </entry>
   
   <entry>
     <title>iptables 将 Cloudflare&#39;s IP 加入白名单</title>
-    <link href="https://sometimesnaive.org/article/53"/>
-    <id>https://sometimesnaive.org/article/53</id>
+    <link href="https://gh.sometimesnaive.org/article/53.html"/>
+    <id>https://gh.sometimesnaive.org/article/53.html</id>
     <published>2018-01-21T11:46:00.000Z</published>
     <updated>2018-04-04T13:36:20.718Z</updated>
     
     <summary type="html">
     
-      &lt;!-- build time:Tue May 01 2018 19:39:57 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍如何使用 iptables 将 Cloudflare’s IP 加入白名单。&lt;br&gt;
+      &lt;!-- build time:Thu May 03 2018 22:55:34 GMT+0800 (中国标准时间) --&gt;&lt;p&gt;本文介绍如何使用 iptables 将 Cloudflare’s IP 加入白名单。&lt;br&gt;
     
     </summary>
     
-      <category term="Linux" scheme="https://sometimesnaive.org/category/linux/"/>
+      <category term="Linux" scheme="https://gh.sometimesnaive.org/category/linux/"/>
     
-      <category term="Technique" scheme="https://sometimesnaive.org/category/linux/technique/"/>
+      <category term="Technique" scheme="https://gh.sometimesnaive.org/category/linux/technique/"/>
     
-      <category term="Iptables" scheme="https://sometimesnaive.org/category/linux/technique/iptables/"/>
+      <category term="Iptables" scheme="https://gh.sometimesnaive.org/category/linux/technique/iptables/"/>
     
     
   </entry>
