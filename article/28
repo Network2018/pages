@@ -1,0 +1,51 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 反代 Google（插件篇） | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 反代 Google（插件篇）</h2><p class="post-date">11/23/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>Nginx 反代 Google 有一个很方便的插件 <code>ngx_http_google_filter_module</code>，本文介绍其的使用方法。<br><a id="more"></a></p><h2 id="所需准备"><a href="#所需准备" class="headerlink" title="所需准备"></a>所需准备</h2><p>这个部分请参看之前的 <a href="https://sometimesnaive.org/article/27">基本篇</a></p><p>当以上准备完毕后，开始吧！</p><h2 id="Nginx-的配置"><a href="#Nginx-的配置" class="headerlink" title="Nginx 的配置"></a>Nginx 的配置</h2><p>为了方便的实现对 Google 的反代，我们<code>需要以下两个 module</code>：</p><ol><li><a href="https://github.com/cuber/ngx_http_google_filter_module">ngx_http_google_filter_module</a></li><li><a href="https://github.com/yaoweibin/ngx_http_substitutions_filter_module">ngx_http_substitutions_filter_module</a></li></ol><p>将这两个模块添加进 Nginx</p><pre><code class="language-bash"># 下载模块
+git clone https://github.com/cuber/ngx_http_google_filter_module
+git clone https://github.com/yaoweibin/ngx_http_substitutions_filter_module
+
+# 编译进去
+./configure \
+--prefix=.../ \
+--add-module=.../ngx_http_google_filter_module \
+--add-module=.../ngx_http_substitutions_filter_module
+
+# 替换 Nginx 二进制文件
+cp ../sbin/nginx ../nginx.bak
+cp ./objs/nginx ../sbin/
+</code></pre><p>这样，模块就添加完成了</p><h2 id="Nginx-的配置文件"><a href="#Nginx-的配置文件" class="headerlink" title="Nginx 的配置文件"></a>Nginx 的配置文件</h2><p>接下来就要进入配置文件 <code>nginx.conf</code> 的编辑</p><pre><code class="language-nginx">server {
+        listen 监听端口;
+
+        server_name 你的域名;
+
+        # 为了安全考虑（例如 IP 被墙），强烈建议使用 HTTPS
+        ssl on;
+        ssl_protocols TLSv1.2;
+        ssl_certificate ~/站点证书
+        ssl_certificate_key ~/站点证书密钥
+
+        location / {
+            #谷歌搜索
+            google on;
+
+            #谷歌学术
+            google_scholar off;
+
+            #语言偏好
+            google_language &quot;zh-CN&quot;;
+
+            #指定任何搜索引擎都不允许爬取此镜像
+            google_robots_allow off;
+        }
+}
+</code></pre><p>然后重新加载你的 Nginx，就可以访问你的域名看看效果了。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/27">Nginx 反代 Google（基本篇） <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/29"><span class="nav-arrow">← </span>本博客 Nginx 配置（系列三） 完整篇</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#所需准备"><span class="toc-nav-text">所需准备</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Nginx-的配置"><span class="toc-nav-text">Nginx 的配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Nginx-的配置文件"><span class="toc-nav-text">Nginx 的配置文件</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "28",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

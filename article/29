@@ -1,0 +1,203 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>本博客 Nginx 配置（系列三） 完整篇 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>本博客 Nginx 配置（系列三） 完整篇</h2><p class="post-date">11/26/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>这是本博客 Nginx 配置系列的第三篇了，在前面的两篇中我分别介绍了安全和性能的相关内容，这篇文章会对之前我所作的那些文章（所作的那些铺垫）做一个集合，以本站的配置为示例进行说明。<br><a id="more"></a></p><h2 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h2><pre><code class="language-bash"># 下载所需
+apt-get install -y git
+
+# pcre 8.42
+# 更新至最新版 pcre
+wget https://raw.githubusercontent.com/nanqinlang/Nginx/master/dependence/pcre-8.42.tar.gz &amp;&amp; tar -zxf pcre-8.42.tar.gz
+cd pcre-8.42 &amp;&amp; ./configure &amp;&amp; cd ..
+
+# zlib-cloudflare
+# 采用 cloudflare 维护的 zlib
+git clone --depth=1 https://github.com/nanqinlang-fork-blog-nginx/zlib.git zlib-cloudflare
+cd zlib-cloudflare &amp;&amp; ./configure &amp;&amp; cd ..
+
+# 本站已启用 TLS 1.3，所以采用 openssl-draft-18 分支
+# git clone -b tls1.3-draft-18 https://github.com/nanqinlang-fork/openssl.git openssl-draft-18
+# 更新：本站不再使用 openssl 并不再启用 TLS1.3
+# 本站已改用 LibreSSL 作为加密库
+wget https://raw.githubusercontent.com/nanqinlang/Nginx/master/dependence/libressl-2.6.4.tar.gz &amp;&amp; tar -zxf libressl-2.6.4.tar.gz
+
+# 本站使用 Nginx mainline v1.13.9
+wget https://nginx.org/download/nginx-1.13.9.tar.gz &amp;&amp; tar -zxf nginx-1.13.9.tar.gz
+
+# Nginx brotli module
+git clone https://github.com/nanqinlang-fork-blog-nginx/ngx_brotli.git &amp;&amp; cd ngx_brotli &amp;&amp; git submodule update --init &amp;&amp; cd ..
+
+# Nginx CT module
+# wget https://raw.githubusercontent.com/nanqinlang/Nginx/master/module/ct-module-1.3.2.tar.gz &amp;&amp; tar -zxf ct-module-1.3.2.tar.gz
+# 改用 LibreSSL 后不能再编译进 CT 模块
+
+# Nginx substitutions filter module
+git clone https://github.com/nanqinlang-fork/ngx_http_substitutions_filter_module.git
+
+# 编译所需
+apt-get install -y build-essential cmake clang
+
+# 开始吧
+./configure \
+--prefix=/home/nginx \
+--builddir=/home/nginx-installation/build \
+--sbin-path=/home/nginx/sbin/nginx \
+--modules-path=/home/nginx/modules \
+--pid-path=/home/nginx/sbin/nginx.pid \
+--conf-path=/home/nginx/conf/nginx.conf \
+--error-log-path=/home/nginx/logs/error.log \
+--http-client-body-temp-path=/home/nginx/temp/client_body \
+--http-proxy-temp-path=/home/nginx/temp/proxy \
+--with-pcre=/home/nginx-installation/pcre-8.42 \
+--with-zlib=/home/nginx-installation/zlib-cloudflare \
+--with-openssl=/home/nginx-installation/libressl-2.6.4 \
+--with-http_ssl_module \
+--with-http_v2_module \
+--with-http_gzip_static_module \
+--with-http_gunzip_module \
+--add-module=/home/nginx-installation/ngx_brotli \
+--with-http_sub_module \
+--add-module=/home/nginx-installation/ngx_http_substitutions_filter_module \
+--with-http_stub_status_module \
+--with-http_degradation_module \
+--without-http_fastcgi_module \
+--without-http_scgi_module \
+--without-http_uwsgi_module \
+--without-http_autoindex_module \
+--without-http_charset_module \
+--without-http_empty_gif_module \
+--without-mail_pop3_module \
+--without-mail_imap_module \
+--without-mail_smtp_module
+
+make &amp;&amp; make install
+</code></pre><p>为了能够更方便地体会到新特性，在版本上我都选择了较新的版本，在 configure 中我详细的指定了各项目录、启用了较多模块。</p><p><del><code>--with-openssl-opt=enable-tls1_3</code> 用于启用 <code>TLS 1.3</code></del> 本站已不再启用 TLS1.3。更多详细可以看我的 <a href="https://sometimesnaive.org/article/3">这篇文章</a></p><p><code>--add-module=.../ngx_brotli</code> 用于启用 Brotli 压缩。更多详细可以看我的 <a href="https://sometimesnaive.org/article/49">这篇文章</a></p><p><code>--with-http_gzip_static_module</code> 用于启用 <code>Gzip</code> 压缩，这个我在前面的 <a href="https://sometimesnaive.org/article/16#Gzip-压缩">性能篇</a> 中已有提过，且也有 <a href="https://sometimesnaive.org/article/40">一篇文章</a> 专门讲述其配置。</p><p><code>--add-module=.../nginx-ct-1.3.2</code> 用于 TLS 拓展方式启用 <code>Certificate Transparency</code> 特性，更多详细可以看我的 <a href="https://sometimesnaive.org/article/15">这篇文章</a></p><h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>Nginx 的全局配置位于 <code>nginx.conf</code> 中：</p><pre><code class="language-nginx"># 运行 Nginx 的用户组和用户
+user                  naive naive;
+# 进程数，一般设置为 CPU 核心数的两倍，推荐使用 auto 即可
+worker_processes      auto;
+# 错误日志路径
+error_log             /home/nginx/logs/error.log crit;
+# pid 路径
+pid                   /home/nginx/sbin/nginx.pid;
+# 最大访问文件数限制
+worker_rlimit_nofile  4096;
+
+events {
+    # nginx 处理请求的方法
+    use                 epoll;
+    # 单个 worker process 的最大链接数
+    worker_connections  4096;
+    # 让 nginx worker 进程尽可能多的接受请求
+    multi_accept        off;
+}
+
+http {
+    include         mime.types;
+    charset         UTF-8;
+    default_type    application/octet-stream;
+
+    # 隐藏 Nginx 版本信息
+    server_tokens   off;
+    # 连接日志记录的格式
+    log_format logformat &#39;[$time_local] [ $remote_addr $http_user_agent] [$status $request_time] [$http_host $request] [$http_referer]&#39;;
+
+    # 限制并发连接数，需要在站点配置中写入剩下的配置项
+    limit_conn_zone $binary_remote_addr zone=perip:10m;
+    limit_conn_zone $server_name        zone=perserver:100m;
+
+    # TCP 优化
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   60s;
+
+    # Gzip 压缩
+    gzip  on;
+    gzip_vary  on;
+    gzip_min_length  1000;
+    gzip_buffers  16 10k;
+    gzip_comp_level  3;
+    gzip_proxied  any;
+    gzip_types  text/plain text/html;
+    gzip_http_version  1.0;
+    gzip_disable  &quot;msie6&quot;;
+    gzip_static always;
+    gunzip on;
+
+    # open_file_cache
+    open_log_file_cache         max=4096 inactive=30m min_uses=3 valid=30m;
+    open_file_cache             max=4096 inactive=12h;
+    open_file_cache_valid       12h;
+    open_file_cache_min_uses    3;
+    open_file_cache_errors      off;
+
+    # TLS 会话恢复
+    ssl_session_tickets     on;
+    # 如果只是单机站点，不需配置 ticket_key 这项
+    ssl_session_ticket_key  /home/site/crt/ssl_session_ticket.key;
+    ssl_session_cache       shared:SSL:10m;
+    ssl_session_timeout     30m;
+
+    # 引入我的站点配置
+    include sometimesnaive.conf;
+}
+</code></pre><h2 id="站点配置"><a href="#站点配置" class="headerlink" title="站点配置"></a>站点配置</h2><p>本博客站点配置位于 <code>sometimesnaive.conf</code> 中</p><pre><code class="language-nginx">server {
+    #listen 443 ssl spdy http2 fastopen=3 reuseport;
+    #本博客已取消 spdy 和 http/2 特性
+    listen 443 ssl fastopen=3 reuseport;
+
+    root   /home/site/blog;
+    index  index.html;
+
+    server_name  sometimesnaive.org;
+
+    # 连接日志
+    access_log        /home/site/access-log/access.log logformat;
+    log_not_found    off;
+
+    # 限制并发连接数
+    limit_conn  perip 10;
+    limit_conn  perserver 100;
+
+    #ssl_protocols TLSv1.3 TLSv1.2;
+    #本博客已取消启用 TLS 1.3
+    ssl_protocols  TLSv1.2;
+
+    # 本站已启用 ECC &amp; RSA 双证书
+    ## Let&#39;s Encrypt 的 ECC 证书
+    ssl_certificate      /home/site/crt/ecc/LetsEncryptecc-chained.cer;
+    ssl_certificate_key  /home/site/crt/ecc/LetsEncryptecc.key;
+    ## 本站已启用 Certificate Transparency
+    ssl_ct  on;
+    ssl_ct_static_scts   /home/site/crt/ecc;
+    # Let&#39;s Encrypt的 RSA 证书
+    ssl_certificate      /home/site/crt/rsa/LetsEncryptrsa-chained.cer;
+    ssl_certificate_key  /home/site/crt/rsa/LetsEncryptrsa.key;
+    ssl_ct_static_scts   /home/site/crt/rsa;
+
+    ssl_prefer_server_ciphers  on;
+    ssl_dhparam  /home/site/crt/dh-4096.pem;
+    ssl_ciphers  &#39;ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-CHACHA20-POLY1305 ECDHE-ECDSA-AES256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-CHACHA20-POLY1305 ECDHE-RSA-AES256-GCM-SHA384&#39;;
+
+    # OCSP Stapling
+    ssl_stapling             on;
+    ssl_stapling_verify      on;
+    ssl_trusted_certificate  /home/site/crt/LetsEncryptocsp.cer;
+    resolver  208.67.222.222 valid=300s;
+    resolver_timeout         5s;
+
+    # HTTP 响应头
+    add_header  Strict-Transport-Security  &quot;max-age=31536000; preload; includeSubDomains&quot; always;
+    add_header  X-Frame-Options            &quot;deny&quot; always;
+    add_header  X-Content-Type-Options     &quot;nosniff&quot; always;
+    add_header  X-Xss-Protection           &quot;1; mode=block&quot; always;
+}
+</code></pre><p>以上配置，分别解释在我的以下文章。以下列表，按照“站点配置中的配置项目”，从上至下依次排列：</p><ul><li><a href="https://sometimesnaive.org/article/19">Nginx 启用 HTTPS 站点</a></li><li><a href="https://sometimesnaive.org/article/3">Nginx 启用 TLS1.3</a></li><li><a href="https://sometimesnaive.org/article/18">Nginx 启用 RSA&amp;ECC 双证书</a></li><li><a href="https://sometimesnaive.org/article/13">Nginx 启用 OCSP Stapling</a></li><li><a href="https://sometimesnaive.org/article/15">Certificate Transparency 概述</a></li><li><a href="https://sometimesnaive.org/article/12">本博客 Nginx 配置（系列一） 安全篇</a></li><li><a href="https://sometimesnaive.org/article/16">本博客 Nginx 配置（系列二） 性能篇</a></li><li><a href="https://sometimesnaive.org/article/9">那些站点安全相关的 HTTP 响应头</a></li><li><a href="https://sometimesnaive.org/article/10">Content Security Policy 概述</a></li></ul><p>本文最后更新： 2018-03-24</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/28">Nginx 反代 Google（插件篇） <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/30"><span class="nav-arrow">← </span>Nginx 编译参数基本大全</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#编译安装"><span class="toc-nav-text">编译安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#全局配置"><span class="toc-nav-text">全局配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#站点配置"><span class="toc-nav-text">站点配置</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "29",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

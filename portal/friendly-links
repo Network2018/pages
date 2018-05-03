@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport">
+    <link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon">
+    <title>友情链接 | 南琴浪博客</title>
+    <link  href="https://static.sometimesnaive.org:9004/deps/css/style.min.css"     type="text/css" rel="stylesheet">
+    <script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js"      type="application/javascript"></script>
+    <link  href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet">
+    <script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js"   type="application/javascript"></script>
+  </head>
+
+  <body>
+    <header class="header fixed-header">
+      <div class="header-container">
+        <a class="home-link" href="/">南琴浪博客</a>
+        <ul class="right-list">
+          <li class="list-item">
+            <a href="/" class="item-link">Home</a></li>
+          <li class="list-item">
+            <a href="/archive/" class="item-link">Archive</a></li>
+          <li class="list-item">
+            <a href="/status/" class="item-link">Status</a></li>
+          <li class="list-item">
+            <a href="/portal/atom.xml" class="item-link">RSS</a></li>
+          <li class="list-item">
+            <a href="/portal/friendly-links" class="item-link">Link</a></li>
+        </ul>
+        <div class="menu-mask">
+          <ul class="menu-list">
+            <li class="menu-item">
+              <a href="/" class="menu-link">Home</a></li>
+            <li class="menu-item">
+              <a href="/archive/" class="menu-link">Archive</a></li>
+            <li class="menu-item">
+              <a href="/status/" class="menu-link">Status</a></li>
+            <li class="menu-item">
+              <a href="/portal/feed" class="menu-link">RSS</a></li>
+            <li class="menu-item">
+              <a href="/portal/friendly-links" class="menu-link">Link</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div id="article-banner">
+      <h2>Friendly Links</h2>
+      <p class="post-date">4/17/2018</p></div>
+    <main class="app-body" id="archives">
+      <section class="time-section">
+        <h1 class="section-year">友情链接</h1>
+        <div class="section-list">
+          <div class="section-list-item">
+            <a href="https://yiyangwang.us" target="_blank" class="archive-title">Yiyang Wang</a>
+            <p class="archive-date">yiyangwang.us</p></div>
+          <div class="section-list-item">
+            <a href="https://kirikira.moe" target="_blank" class="archive-title">It's me, Kiri!</a>
+            <p class="archive-date">kirikira.moe</p></div>
+          <div class="section-list-item">
+            <a href="https://linkthis.me" target="_blank" class="archive-title">linkthis blog</a>
+            <p class="archive-date">linkthis.me</p></div>
+          <div class="section-list-item">
+            <a href="https://dcc.cat" target="_blank" class="archive-title">DCC 的小窝</a>
+            <p class="archive-date">dcc.cat</p></div>
+          <div class="section-list-item">
+            <a href="https://www.moerats.com" target="_blank" class="archive-title">Rat's Blog</a>
+            <p class="archive-date">moerats.com</p></div>
+          <div class="section-list-item">
+            <a href="https://liyuans.com" target="_blank" class="archive-title">Leonn 的博客</a>
+            <p class="archive-date">liyuans.com</p></div>
+          <div class="section-list-item">
+            <a href="https://www.sabia.cc" target="_blank" class="archive-title">Sabia 科学研究所</a>
+            <p class="archive-date">sabia.cc</p></div>
+        </div>
+      </section>
+    </main>
+
+    <script>(function(){
+        var banner = "https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg"
+        $('#article-banner').css({'background-image': 'url(' + banner + ')'})
+        $('.header').removeClass('fixed-header')
+    })();</script>
+
+    <div class="scroll-top">
+      <span class="arrow-icon"></span>
+    </div>
+    <footer class="app-footer">
+      <p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)</a> </p>
+    </footer>
+
+    <script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script>
+
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-108266909-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+  </body>
+
+</html>

@@ -1,0 +1,106 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 反代 Google（进阶篇） | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 反代 Google（进阶篇）</h2><p class="post-date">12/09/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>在前面的 <a href="https://sometimesnaive.org/article/27">基本篇</a> 和 <a href="https://sometimesnaive.org/article/28">插件篇</a> 中，我都有介绍 Nginx 建立一个 Google 反代的方法。这篇文章会介绍更进阶的配置。<br><a id="more"></a></p><h2 id="所需准备"><a href="#所需准备" class="headerlink" title="所需准备"></a>所需准备</h2><p>这个部分请参看之前的基本篇。</p><p>当以上准备完毕后，开始吧！</p><h2 id="Nginx-的配置文件"><a href="#Nginx-的配置文件" class="headerlink" title="Nginx 的配置文件"></a>Nginx 的配置文件</h2><p>接下来就要进入配置文件 <code>nginx.conf</code> 的编辑</p><pre><code class="language-nginx">### server 段 ###
+server {
+        listen 监听端口;
+
+        server_name 你的域名;
+
+        # 为了安全考虑（例如 IP 被墙），强烈建议使用 HTTPS
+        ssl on;
+        ssl_protocols TLSv1.2;
+        ssl_certificate ~/站点证书
+        ssl_certificate_key ~/站点证书密钥
+
+        location / {
+            proxy_pass                          https://www.google.com;
+
+            #把返回的 302 重定向的域名替换成你的。这里关闭
+            proxy_redirect                      off;
+
+            #替换指定字符串
+            sub_filter                          www.google.com 你的域名;
+            #字符串只进行一次替换，即只替换第一个被匹配的字符串。这里关闭。
+            sub_filter_once                     off;
+
+            # 指定头部：
+            proxy_set_header  Host              &quot;www.google.com&quot;;
+            proxy_set_header  Referer           $http_referer;
+            proxy_set_header  X-Real-IP         $remote_addr;
+            proxy_set_header  User-Agent        $http_user_agent;
+            proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header  X-Forwarded-Proto https;
+            #防止谷歌返回压缩的内容，因为压缩的内容无法替换字符串
+            proxy_set_header  Accept-Encoding   &quot;&quot;;
+            proxy_set_header  Accept-Language   &quot;zh-CN&quot;;
+
+            #把 cookie 的作用域替换成你的域名
+            proxy_cookie_domain                 www.google.com 你的域名;
+            #传固定的 cookie 给谷歌，是为了禁止即时搜索，因为开启即时搜索无法替换内容
+            proxy_set_header  Cookie            &quot;PREF=ID=047808f19f6de346:U=0f62f33dd8549d11:FF=2:LD=en-US:NW=1:TM=1325338577:LM=1332142444:GM=1:SG=2:S=rE0SyJh2W1IQ-Maw&quot;;
+
+            # 启用 proxy_cache 缓存
+            proxy_cache                 proxycache;
+            proxy_cache_valid           304 2h;
+            proxy_cache_valid           403 444 2h;
+            proxy_cache_valid           404 2h;
+            proxy_cache_valid           500 502 2h;
+            proxy_cache_use_stale       invalid_header http_404 http_500 http_502;
+            proxy_cache_lock            on;
+            proxy_cache_lock_timeout    5s;
+        }
+}
+</code></pre><p>其中，我启用了 <code>proxy_cache</code> 这个缓存。关于它的配置方法，<a href="https://sometimesnaive.org/article/16#proxy-cache">请看这里</a></p><h2 id="指定-Google-上游服务器"><a href="#指定-Google-上游服务器" class="headerlink" title="指定 Google 上游服务器"></a>指定 Google 上游服务器</h2><p>这里通过在 <code>http</code> 段（即全局配置 nginx.conf）中，配置 <code>upstream</code> 指定域名解析。</p><p>指定多个 Google 服务器的 ip 可能能够减少被判异常流量弹验证码的几率。</p><p>对于获取 Google 服务器 ip 的方式，这里介绍两种：</p><ul><li>在 vps 上多次执行 ping www.google.com</li><li>通过 www.ipip.net/dns.php 选择国外节点进行 dns 查询</li></ul><p>在 <code>nginx.conf</code> 中写入配置：</p><pre><code class="language-nginx">http{
+
+    ......
+
+    # weight 表示权重，数值越高被分配到的几率越大
+    #下列 ip 多数为通过 ipip.net 获取
+    #你也可以自行添加更多 ip
+
+    upstream www.google.com {
+
+    #中国香港 google.com
+    server 216.58.221.68:443 weight=6;
+    #中国台湾 google.com
+    server 74.125.23.99:443 weight=5;
+    #日本东京都东京 google.com
+    server 172.217.25.68:443 weight=4;
+    #日本东京都东京 google.com
+    server 216.58.200.196:443 weight=4;
+    #日本大阪府大阪 google.com
+    server 216.58.197.4:443 weight=3;
+    #新加坡 google.com
+    server 74.125.130.147:443 weight=2;
+    #美国 我的小鸡 ping www.google.com 所得
+    server 216.58.217.196:443 weight=1;
+    server 172.217.11.164:443 weight=1;
+    #美国 google.com
+    server 74.125.28.104:443 weight=1;
+    #美国 google.com
+    server 74.125.28.147:443 weight=1;
+    #美国华盛顿州西雅图 google.com
+    server 172.217.3.196:443 weight=1;
+
+    }
+
+}
+</code></pre><h2 id="为站点启用密码验证"><a href="#为站点启用密码验证" class="headerlink" title="为站点启用密码验证"></a>为站点启用密码验证</h2><p>上文已提到，直接反代 Google 会有很高概率被墙（主要以 dns 污染），公共镜像基本活不久<br>所以为了降低这种几率，且为了满足本文开头所提到的“备用”，可以为你的 Nginx 站点<code>上锁</code>，令其只为你自己服务<br>启用 Nginx 的 auth_basic 功能：</p><p>1.<strong>生成密码</strong><br>因为 Nginx 必须使用 crypt() 函数，将表单提交的密码加密后和存储的密码比对<br>openssl 的 passwd 命令就能对明文密码进行加密</p><pre><code class="language-bash">openssl passwd
+</code></pre><p>然后会提示输入密码，连续输入两次后，就能得到加密后的密码了，例如：</p><pre><code>O6bz.ASDzd.ED
+</code></pre><p>2.<strong>创建认证文件</strong><br>Nginx 需要指定一个用于比对用户名和密码的认证文件，我们就创建这个文件<br>认证文件的内容按照 <code>用户名:密码</code> 的格式，文件名可以随意</p><pre><code class="language-bash">echo &quot;username:password&quot; &gt; passwdfile
+</code></pre><p>3.<strong>在 Nginx 中加入认证功能</strong><br>在需要认证的块内：</p><pre><code class="language-nginx"># 双引号内写入表单的提示语，内容随意
+auth_basic &quot;Authorization&quot;;
+
+# 这里填入认证文件的绝对路径
+auth_basic_user_file .../passwdfile;
+</code></pre><p>然后重启 Nginx ，就能看到生效后的认证表单了<br><img src="https://static.sometimesnaive.org:9004/images/nginx-mirrors-google/auth.png" alt="这是我的认证表单"></p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/33">dingo - HTTPS DNS 服务 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/35"><span class="nav-arrow">← </span>Hexo 搬迁记（二） 插件篇</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#所需准备"><span class="toc-nav-text">所需准备</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Nginx-的配置文件"><span class="toc-nav-text">Nginx 的配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#指定-Google-上游服务器"><span class="toc-nav-text">指定 Google 上游服务器</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#为站点启用密码验证"><span class="toc-nav-text">为站点启用密码验证</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "34",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

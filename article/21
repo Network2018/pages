@@ -1,0 +1,109 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 连接日志的封禁 IP 脚本 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 连接日志的封禁 IP 脚本</h2><p class="post-date">11/08/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>本文讲述用于对 access.log 中关键词对应 IP 的封禁的脚本。<br><a id="more"></a></p><p>在 <a href="https://sometimesnaive.org/article/20">前面的文章</a> 中，我提到过我的 <code>log_format</code> 是这样写的：</p><pre><code class="language-nginx">log_format main &#39;[$time_local] [ $remote_addr $http_user_agent] [$status $request_time $request]&#39;;
+</code></pre><p>所以我可以用下面这行命令来<code>获取我要封禁的关键词（例如爬虫）的 IP 列表</code></p><pre><code class="language-bash">cat /home/site/access-log/access.log |grep ${name} | awk &#39;{print $4}&#39;
+</code></pre><p>其中，<code>${name}</code> 是你要过滤出来的关键词</p><p>以下就是完整的脚本，以我正在使用的为例：</p><pre><code class="language-bash">#! /bin/bash
+# ban-accesslog.sh
+
+ban(){
+name=$1
+ips=`cat /home/site/access-log/access.log |grep ${name} | awk &#39;{print $4}&#39;`
+
+if [[ ! -z ${ips} ]]; then
+for ip in ${ips}
+do
+exist=`iptables -nL | grep ${ip}`
+[[ -z ${exist} ]] &amp;&amp; iptables -I INPUT -s ${ip} -j DROP &amp;&amp; date=`date +%Y.%m.%d-%H:%M:%S` &amp;&amp; echo &quot;${date}    ${name}    ${ip}&quot; &gt;&gt; /home/ban/ban-accesslog.conf
+done
+fi
+}
+
+ban &#39;wp-login&#39;
+ban &#39;UptimeRobot&#39;
+</code></pre><p>其中，我把关键词设定为 wp-login 和 UptimeRobot（这俩天天都在抓我），如果你想添加关键词只需在脚本末尾加上一行：</p><pre><code class="language-bash">ban &#39;关键词&#39;
+</code></pre><p>下面这行用于输出封禁 IP 的记录，可根据自己需要自行修改。</p><pre><code class="language-bash">echo &quot;${date}    ${name}    ${ip}&quot; &gt;&gt; /home/ban/ban-accesslog.conf
+</code></pre><p>下面列出所有我已经写入的关键词，其实绝大多数是国内外的搜索引擎爬虫，特别是国内爬虫我一个都不想要</p><pre><code class="language-bash">## 两个扫我的
+ban &#39;wp-login&#39;
+ban &#39;UptimeRobot&#39;
+
+## 爬虫 bot
+ban &#39;qihoobot&#39;
+ban &#39;Baiduspider&#39;
+ban &#39;Mediapartners-Google&#39;
+ban &#39;Adsbot-Google&#39;
+ban &#39;Feedfetcher-Google&#39;
+ban &#39;Yahoo&#39;
+ban &#39;Slurp&#39;
+ban &#39;YoudaoBot&#39;
+ban &#39;Sosospider&#39;
+ban &#39;Sogou&#39;
+ban &#39;MSNBot&#39;
+ban &#39;ia_archiver&#39;
+ban &#39;Tomato&#39;
+ban &#39;FeedDemon&#39;
+ban &#39;JikeSpider&#39;
+ban &#39;Library&#39;
+ban &#39;Alexa&#39;
+ban &#39;Toolbar&#39;
+ban &#39;AskTbFXTV&#39;
+ban &#39;AhrefsBot&#39;
+ban &#39;CrawlDaddy&#39;
+ban &#39;CoolpadWebkit&#39;
+ban &#39;Feedly&#39;
+ban &#39;UniversalFeedParser&#39;
+ban &#39;ApacheBench&#39;
+ban &#39;Swiftbot&#39;
+ban &#39;ZmEuoBot&#39;
+ban &#39;jaunty&#39;
+ban &#39;Python-urllib&#39;
+ban &#39;lightDeckReports&#39;
+ban &#39;YYSpider&#39;
+ban &#39;DigExt&#39;
+ban &#39;Yisou&#39;
+ban &#39;MJ12bot&#39;
+ban &#39;heritrix&#39;
+ban &#39;Easou&#39;
+ban &#39;Ezooms&#39;
+ban &#39;Yodao&#39;
+ban &#39;Bingbot&#39;
+ban &#39;Teoma&#39;
+ban &#39;twiceler&#39;
+ban &#39;Scrubby&#39;
+ban &#39;Robozilla&#39;
+ban &#39;Gigabot&#39;
+ban &#39;Googlebot-image&#39;
+ban &#39;Googlebot-mobile&#39;
+ban &#39;psbot&#39;
+ban &#39;DuckDuckBot&#39;
+ban &#39;YandexBot&#39;
+ban &#39;Exabot&#39;
+ban &#39;facebot&#39;
+ban &#39;facebookexternalhit&#39;
+
+## 下载器
+ban &#39;Scrapy&#39;
+ban &#39;HttpClient&#39;
+ban &#39;Curl&#39;
+ban &#39;Wget&#39;
+ban &#39;Idm&#39;
+ban &#39;Aria2&#39;
+ban &#39;Axel&#39;
+ban &#39;Thunder&#39;
+ban &#39;Movgrab&#39;
+ban &#39;torrent&#39;
+ban &#39;Transmission&#39;
+ban &#39;vuze&#39;
+
+## 采集的
+ban &#39;blogspot&#39;
+</code></pre></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/20">Nginx 连接日志 access.log 的配置 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/22"><span class="nav-arrow">← </span>ServerStatus 云探针 使用指南</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="nav">none</ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "21",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

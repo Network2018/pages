@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport">
+    <link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon">
+    <title>404 not found | 南琴浪博客</title>
+    <link  href="https://static.sometimesnaive.org:9004/deps/css/style.min.css"     type="text/css" rel="stylesheet">
+    <script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js"      type="application/javascript"></script>
+    <link  href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet">
+    <script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js"   type="application/javascript"></script>
+  </head>
+
+  <body>
+    <header class="header fixed-header">
+      <div class="header-container">
+        <a class="home-link" href="/">南琴浪博客</a>
+        <ul class="right-list">
+          <li class="list-item">
+            <a href="/" class="item-link">Home</a></li>
+          <li class="list-item">
+            <a href="/archive/" class="item-link">Archive</a></li>
+          <li class="list-item">
+            <a href="/status/" class="item-link">Status</a></li>
+          <li class="list-item">
+            <a href="/portal/feed" class="item-link">RSS</a></li>
+          <li class="list-item">
+            <a href="/portal/friendly-links" class="item-link">Link</a></li>
+        </ul>
+        <div class="menu-mask">
+          <ul class="menu-list">
+            <li class="menu-item">
+              <a href="/" class="menu-link">Home</a></li>
+            <li class="menu-item">
+              <a href="/archive/" class="menu-link">Archive</a></li>
+            <li class="menu-item">
+              <a href="/status/" class="menu-link">Status</a></li>
+            <li class="menu-item">
+              <a href="/portal/atom.xml" class="menu-link">RSS</a></li>
+            <li class="menu-item">
+              <a href="/portal/friendly-links" class="menu-link">Link</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div id="article-banner">
+      <h2>404 not found</h2>
+    </div>
+    <main class="app-body flex-box">
+      <article class="post-article">
+        <section class="markdown-content">
+          <p>
+            很抱歉，您要访问的页面已经飞走了
+            <br/>
+            <br/>
+            您是否需要：
+            <br/>
+            <br/>
+            返回首页？ <a href="https://sometimesnaive.org">南琴浪博客</a>
+          </p>
+        </section>
+    </main>
+
+    <script>(function(){
+        var banner = "https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg"
+        $('#article-banner').css({'background-image': 'url(' + banner + ')'})
+        $('.header').removeClass('fixed-header')
+    })();</script>
+
+    <div class="scroll-top">
+      <span class="arrow-icon"></span>
+    </div>
+    <footer class="app-footer">
+      <p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)</a>
+      </p>
+    </footer>
+    <script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script>
+  </body>
+
+</html>

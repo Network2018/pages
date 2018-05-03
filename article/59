@@ -1,0 +1,95 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Unbound - 强大的 DNS 服务 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Unbound - 强大的 DNS 服务</h2><p class="post-date">03/07/2018</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>Unbound 是一款强大的 DNS 服务，<a href="https://www.unbound.net">官网</a>，提供 非标端口 &amp;&amp; 本地缓存 &amp;&amp; 强制 TCP 查询 等功能。本文讲述它的基本配置方法。<br><a id="more"></a></p><h2 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h2><p>强烈建议使用编译安装：</p><pre><code class="language-bash"># 编译依赖
+apt-get install -y build-essential &amp;&amp; apt-get build-dep -y unbound
+
+# 编译开始
+wget https://www.unbound.net/downloads/unbound-1.6.8.tar.gz &amp;&amp; tar -zxf unbound-1.6.8.tar.gz
+cd unbound-1.6.8
+./configure --prefix=/home/unbound --sysconfdir=/home/unbound/etc --with-pidfile=/home/unbound/pid/unbound.pid --with-libevent --disable-rpath
+make &amp;&amp; make install
+</code></pre><h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>编译安装完成后，找到配置文件 <code>/home/unbound/etc/unbound/unbound.conf</code> ，修改它，参考以下说明写入你的配置：</p><pre><code class="language-yaml"># server 段
+# 指定服务的配置项
+server:
+  chroot: &quot;&quot;
+  username: &quot;root&quot;
+  directory: &quot;/home/unbound/sbin&quot;
+  pidfile: &quot;/home/unbound/pid/unbound.pid&quot;
+
+  #监听地址。如果要作为公共服务，设置为 0.0.0.0；如果要仅本地使用，设置 127.0.0.1
+  interface: 127.0.0.1
+  #监听端口。你随意
+  port: 52
+
+  do-ip4: yes
+  do-ip6: no
+  do-tcp: no
+  #提示：就算是强制 tcp 查询，也要在这里允许 do udp
+  do-udp: yes
+  #强制使用 tcp 查询上游
+  tcp-upstream: no
+
+  #限制每个线程向上级查询的 TCP 并发数
+  outgoing-num-tcp: 100
+  #限制每个线程接受查询的 TCP 并发数
+  incoming-num-tcp: 100
+
+  #线程数，建议修改为物理核心数
+  num-threads: 2
+  #如果开了多线程，就写 yes
+  so-reuseport: yes
+
+  so-rcvbuf: 4m
+  so-sndbuf: 4m
+
+  msg-cache-size: 60m
+  rrset-cache-size: 120m
+
+  cache-max-ttl: 3600
+  cache-min-ttl: 600
+
+  #最小化响应，用于节省带宽。建议开启。若仅用于本地可以关闭
+  minimal-responses: yes
+
+  #不查询 localhost（本地）
+  do-not-query-localhost: no
+
+  #禁用 DNSSEC 检查，如果上游不支持 DNSSEC 就启用这行。反之就注释掉
+  module-config: &quot;iterator&quot;
+
+  #不返回对 id.server 和 hostname.bind 的查询
+  hide-identity: yes
+  #不返回对 version.server 和 version.bind 的查询
+  hide-version: yes
+
+
+# forward 段
+# 指定上游服务器
+forward-zone:
+ # 上游 1
+  #所有域名
+  name: &quot;.&quot;
+  #上游服务器的 IP@Port
+  forward-addr: 8.8.8.8@53
+ # 上游 2
+  #指定具体的域名
+  name: &quot;google.com&quot;
+  #上游服务器的 IP@Port
+  forward-addr: 8.8.4.4@53
+</code></pre><h2 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h2><p>修改完成配置后，就可以运行主服务了</p><pre><code class="language-bash">cd /home/unbound/sbin
+chmod +x unbound
+./unbound
+</code></pre><h2 id="搭配其它-DNS-相关服务"><a href="#搭配其它-DNS-相关服务" class="headerlink" title="搭配其它 DNS 相关服务"></a>搭配其它 DNS 相关服务</h2><p>例如说你想搭配 unbound + dnscrypt 组合，那么你就把 dnscrypt 放到 53 端口，然后这样指定 unbound 的上游：</p><pre><code class="language-yaml">forward-zone:
+  name: &quot;.&quot;
+  forward-addr: 127.0.0.1@53
+</code></pre><p>并且，我在之前的文章 <a href="https://sometimesnaive.org/article/33">dingo - HTTPS DNS 服务</a> 中也提到过其和 unbound 的搭配，道理同上。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/58">本博客 Nginx 配置（第二季） <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/60"><span class="nav-arrow">← </span>highlight.js - 代码高亮插件</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#编译安装"><span class="toc-nav-text">编译安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#配置文件"><span class="toc-nav-text">配置文件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#启动服务"><span class="toc-nav-text">启动服务</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#搭配其它-DNS-相关服务"><span class="toc-nav-text">搭配其它 DNS 相关服务</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "59",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

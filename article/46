@@ -1,0 +1,55 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 基础教程（二）反向代理 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 基础教程（二）反向代理</h2><p class="post-date">01/04/2018</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>这是<code>Nginx 基础教程</code>系列的第二篇文章。本文介绍 Nginx 作为反向代理的基本用法。<br><a id="more"></a></p><h2 id="反向代理和源站的区别"><a href="#反向代理和源站的区别" class="headerlink" title="反向代理和源站的区别"></a>反向代理和源站的区别</h2><p>首先有必要说明下：<code>反向代理 和 源站 的区别</code></p><p>对于一个网站所包含的内容（数据）来说：<code>如果你就是源站</code>，网站的所有数据的<code>第一手来源都是你</code>，所有响应的数据都由你决定；<code>而如果你的网站只是一个反向代理</code>，那么你的网站的数据就来源于<code>被你反代的那个网站</code>，虽然你可以对反代来的这些数据进行更改后再作为响应返回给客户，但是<code>网站数据的第一手来源不是你</code>。</p><p>以上所述区别，在 Nginx 配置文件上的体现，这里仅举出下列几个例子：</p><ul><li>root 与 proxy_pass</li><li>add_header 与 proxy_set_header</li><li>buffer 与 proxy_buffer</li></ul><h2 id="配置项的组成"><a href="#配置项的组成" class="headerlink" title="配置项的组成"></a>配置项的组成</h2><p>Nginx 作为反向代理时的配置项，可以含有以下的基本组成部分：</p><ul><li>proxy_pass</li><li>proxy_redirect</li><li>proxy_set_header</li><li>proxy_hide_header</li><li>sub_filter</li><li>proxy_cache</li><li>proxy_buffer</li><li>其它等等</li></ul><p>其中，<code>proxy_pass</code> 是必选项，作用是指定你要反代的网站，值的含义是 scheme+host+port，例如 <code>proxy_pass https://www.google.com:443;</code>。</p><p><code>proxy_redirect</code> 可选项，指定是否允许对源站的 host 进行 rewrite，值为 on 或 off，例如 <code>proxy_redirect off;</code>。</p><p><code>proxy_set_header</code> 可选项，作用是对 http request header 进行修改后，发送给源站。</p><p><code>proxy_hide_header</code> 可选项，作用是不将来自源站的指定的 header 返回给客户，即隐藏来自源站的 header。</p><p><code>sub_filter</code> 可选项，替换源站数据中的指定字符串。</p><p><code>proxy_cache</code> 可选项，对反代后返回的数据进行缓存。使用方法请看我的这篇文章：<a href="https://sometimesnaive.org/article/36">Nginx 启用 proxy_cache 缓存</a>。</p><p><code>proxy_buffer</code> 可选项，对反代启用 buffer 区缓存。使用方法请看我的这篇文章：<a href="https://sometimesnaive.org/article/44">Nginx 启用 proxy_buffer 缓冲</a>。</p><h2 id="基本配置"><a href="#基本配置" class="headerlink" title="基本配置"></a>基本配置</h2><p>上文已提到，Nginx 作为反向代理时，只有一个必需项 – <code>proxy_pass</code>。所以，以反代 github 为例，最简单的站点配置就可以写成这样：</p><pre><code class="language-nginx">server {
+    # 监听端口，其实可以随意
+    listen  80;
+
+    # 你的反代的域名
+    server_name  你的反代的域名;
+
+    # 记录访问日志
+    access_log   /home/site/access.log;
+
+    location / {
+        proxy_pass  https://github.com;
+    }
+}
+</code></pre><h2 id="进阶配置"><a href="#进阶配置" class="headerlink" title="进阶配置"></a>进阶配置</h2><p>上文所述的基本配置，对于 Nginx 的配置来说的确已可行。但在实际使用过程中，这样只有一行 proxy_pass 的反代可能会遇到各种麻烦。所以这时就需要一些增强功能，那就是上文提到的可选项。</p><p>最常见的可选项就是 <code>proxy_set_header</code> 了。这里介绍它的用法。</p><p>上文已提到，proxy_set_header 的作用是<code>对 http request header 进行修改后，发送给源站</code>。</p><p>在常见的网站访问中，HTTP 过程通常包括了 request header 和 response header 两部分的响应头。<code>客户对网站发出访问请求时，会对网站发送 request header</code>；而<code>网站向客户返回网站内容时，会对客户发送 response header</code>。那么，proxy_set_header 就是适用于前者的情况。</p><p>来举个例子：</p><pre><code class="language-nginx">proxy_set_header  Host &quot;github.com&quot;;
+</code></pre><p>当你访问一个 github 的反代网站时，你对这个网站发出的 request header 的 Host 的值就是<code>你的这个反代站点的 host</code>，你的 Nginx 反代会将这个值原封不动的发送给 github。而当我在 Nginx 上写入上述一行配置后，你的 Nginx 反代发送给 github 源站的值就不再是你的这个反代站点的 host 了，而是会更改为我指定的 <code>github.com</code> 这个值。这样做的好处就在于能避免<code>源站因为 request header Host 的值不是源站的 host 而将你判定为异常流量</code>这种问题的发生。</p><p>那么，根据以上所述，我可以写一个加入了 proxy_set_header 部分后的 github 反代：</p><pre><code class="language-nginx">server {
+    # 监听端口，其实可以随意
+    listen  80;
+
+    # 你的反代的域名
+    server_name  你的反代的域名;
+
+    # 记录访问日志
+    access_log   /home/site/access.log;
+
+    location / {
+        # 指定我要反代的网站是 github
+        proxy_pass  https://github.com;
+
+        # 修改 request header Host 的值
+        proxy_set_header  Host            &quot;www.google.com&quot;;
+
+        # 修改 request header Referer 的值
+        proxy_set_header  Referer        https://www.google.com;
+
+        # 修改 request header remote_addr 的值
+        proxy_set_header  X-Real-IP        $remote_addr;
+
+        # 修改 request header user_agent 的值
+        proxy_set_header  User-Agent    $http_user_agent;
+    }
+}
+</code></pre><p>关于反向代理更完全的配置，我之前写过 Nginx 反代谷歌的系列教程，结合 <a href="https://sometimesnaive.org/article/34">这篇文章</a> 一起阅读后，就能对 Nginx 的反代有一个基本的掌握了。</p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/45">年终总结 2017 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/47"><span class="nav-arrow">← </span>Gitment - GitHub Issue 评论系统</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#反向代理和源站的区别"><span class="toc-nav-text">反向代理和源站的区别</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#配置项的组成"><span class="toc-nav-text">配置项的组成</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#基本配置"><span class="toc-nav-text">基本配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#进阶配置"><span class="toc-nav-text">进阶配置</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "46",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

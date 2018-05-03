@@ -1,0 +1,57 @@
+<!-- build time:Tue May 01 2018 19:40:14 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>开始使用 ngx_lua | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>开始使用 ngx_lua</h2><p class="post-date">04/18/2018</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>本文介绍 ngx-lua-module 的安装方式。<br><a id="more"></a></p><p>说到 Lua 肯定就想到 <a href="https://openresty.org/en/">OpenResty</a> 了，由国人章亦春（我不会告诉你们人称“春哥”的）等发起的一个基于 Nginx 与 Lua 的高性能 Web 平台。以下简略引用 OpenResty 官网的描述：</p><blockquote><p>OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关。</p></blockquote><p>经过一段时间的折(zuo)腾(si)，我也总算是学会 Lua 的最最基本写法了。</p><p>不过因为暂时我还用(mei)不(xue)上(hui) OpenResty 那么强大的套装，本文仅介绍单独将 <a href="https://github.com/openresty/lua-nginx-module">lua-nginx-module</a> 引入 Nginx 的方法。</p><h2 id="lua-nginx-module"><a href="#lua-nginx-module" class="headerlink" title="lua-nginx-module"></a>lua-nginx-module</h2><p>要引入 Lua 到 Nginx，最简化的操作就是仅引入 <code>lua-nginx-module</code> 和 <code>luajit</code> 两者，不过建议同时引入 <code>ngx_devel_kit</code> 模块。对这三者简单介绍下：</p><ul><li>lua-nginx-module：是 Lua 的最基本模块</li><li>luajit：<a href="http://luajit.org/luajit.html">官网</a>，luajit 是采用 C 语言编写的 Lua 语言解释器。当然如果你不想用 luajit 的话，也可以 yum 安装 lua 并提供给 Nginx，不推荐那样而已</li><li>ngx_devel_kit：一般简称 NDK，是一个供其它模块使用的拓展 Nginx 核心功能的模块，第三方模块开发可以基于它快速实现。强烈建议编译 Lua 时把它也带上，虽然不是必须的，缺少该依赖项时例如 set_by_lua* 和 ndk.set_var.* API 都将被自动禁用</li></ul><p>开始编译，首先要准备 <a href="https://github.com/openresty/luajit2">luajit</a> 库。master 提供的是 2.0.5 版本，大概毛病比较多，不建议采用。这里我选择春哥的 2.1.0 beta3 分支：</p><pre><code class="language-bash">git clone --branch=v2.1-agentzh https://github.com/openresty/luajit2.git
+cd luajit2
+
+# make 和 make install 的路径需要记下来（使用绝对路径），之后定义变量要用
+make PREFIX=.../ngx_lua/luajit/made
+make install PREFIX=.../ngx_lua/luajit/makeinstalled
+
+# 然后需要配置一下 luajit 的环境变量 (Nginx编译时需要)
+export LUAJIT_LIB=.../ngx_lua/luajit/makeinstalled/lib
+export LUAJIT_INC=.../ngx_lua/luajit/makeinstalled/include/luajit-2.1
+</code></pre><p>然后克隆 lua-nginx-module 和 ngx_devel_kit 下来，并进行编译 Nginx：</p><pre><code class="language-bash"># 下载 lua-nginx-module
+git clone https://github.com/openresty/lua-nginx-module.git
+
+# 下载 ngx_devel_kit
+git clone https://github.com/simplresty/ngx_devel_kit.git
+
+# 下载 Nginx
+# 这里选择 Nginx 1.14.0 stable (via: https://nginx.org/en/download.html)
+wget https://nginx.org/download/nginx-1.14.0.tar.gz
+tar -zxf nginx-1.14.0.tar.gz
+cd nginx-1.14.0
+
+# configure 时，加入 Lua 相关编译参数
+./configure  ... \
+--with-ld-opt=&quot;-Wl,-rpath,$LUAJIT_LIB&quot; \
+--add-module=.../ngx_lua/ngx_devel_kit \
+--add-module=.../ngx_lua/lua-nginx-module
+
+# still make
+make -j4
+make install
+</code></pre><h2 id="example"><a href="#example" class="headerlink" title="example"></a>example</h2><p>编译完成后，你就可以写好配置文件然后启动 Nginx 了。关于 ngx_lua 的使用方式请参考 <a href="https://github.com/openresty/lua-nginx-module/blob/master/README.markdown">docs</a>。</p><p>接下来我举个 ngx_lua 的最简单例子：实现对 /admin.php 的访问请求返回 403 forbidden。</p><p>以上需求很简单，如果直接使用 Nginx location 的话：</p><pre><code class="language-nginx">    location = /admin.php {
+        return 403;
+    }
+</code></pre><p>如果想要使用 Lua 实现，那么我们先把 Lua 代码写出来：</p><pre><code class="language-lua">    if (ngx.var.request_uri == &quot;/admin.php&quot;) then
+        return ngx.exit(ngx.HTTP_FORBIDDEN)
+    end
+</code></pre><p>然后把它放进 <code>access_by_lua_block</code> 中：</p><pre><code class="language-nginx">    location / {
+        access_by_lua_block {
+            if (ngx.var.request_uri == &quot;/admin.php&quot;) then
+                return ngx.exit(ngx.HTTP_FORBIDDEN)
+            end
+        }
+    }
+</code></pre></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/67">RustRssBot - Telegram RSS Bot <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/69"><span class="nav-arrow">← </span>OpenResty 的两种正则模式匹配</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#lua-nginx-module"><span class="toc-nav-text">lua-nginx-module</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#example"><span class="toc-nav-text">example</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "68",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->

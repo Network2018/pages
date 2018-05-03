@@ -1,0 +1,38 @@
+<!-- build time:Tue May 01 2018 19:40:15 GMT+0800 (中国标准时间) --><!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name="viewport"><link href="https://static.sometimesnaive.org:9004/deps/imgs/favicon.ico" type="image/x-icon" rel="icon"><title>Nginx 启用 HTTPS 站点 | 南琴浪博客</title><link href="https://static.sometimesnaive.org:9004/deps/css/style.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/jquery.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/nprogress.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/nprogress.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/prism.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/prism.min.js" type="application/javascript"></script><link href="https://static.sometimesnaive.org:9004/deps/css/gitment.min.css" type="text/css" rel="stylesheet"><script src="https://static.sometimesnaive.org:9004/deps/js/gitment.min.js" type="application/javascript"></script></head><body><header class="header fixed-header"><div class="header-container"><a class="home-link" href="/">南琴浪博客</a><ul class="right-list"><li class="list-item"><a href="/" class="item-link">Home</a></li><li class="list-item"><a href="/archive/" class="item-link">Archive</a></li><li class="list-item"><a href="/portal/feed" class="item-link">RSS</a></li><li class="list-item"><a href="/portal/friendly-links" class="item-link">Links</a></li></ul><div class="menu-mask"><ul class="menu-list"><li class="menu-item"><a href="/" class="menu-link">Home</a></li><li class="menu-item"><a href="/archive/" class="menu-link">Archive</a></li><li class="menu-item"><a href="/portal/feed" class="menu-link">RSS</a></li><li class="menu-item"><a href="/portal/friendly-links" class="menu-link">Links</a></li></ul></div></div></header><div id="article-banner"><h2>Nginx 启用 HTTPS 站点</h2><p class="post-date">11/02/2017</p></div><main class="app-body flex-box"><article class="post-article"><section class="markdown-content"><p>随着互联网的发展，个人博客如雨后春笋般冒出头来。当你的网站启用 HTTPS 后，浏览器地址栏会有 HTTPS 的绿色小锁标志。本文会介绍如何为 Nginx 启用 HTTPS ，让你的站点上绿锁。<br><a id="more"></a></p><h2 id="SSL-证书"><a href="#SSL-证书" class="headerlink" title="SSL 证书"></a>SSL 证书</h2><p>有关 SSL 可参阅维基百科 <a href="https://zh.wikipedia.org/wiki/傳輸層安全協議">传输层安全协议</a> 和阮一峰先生的 <a href="http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html">SSL/TLS协议运行机制的概述</a>。</p><p>SSL 证书主要有两个功能：加密和身份证明，证书分为 DV/OV/EV 三种级别。免费证书为 DV 级别，常见的可靠免费证书 CA 有 <code>Let’s Encrypt / AlphaSSL / TrustAsia / CloudFlare</code> 。</p><p>推荐2种方便的申请免费证书的方式：</p><ol><li>在 <a href="https://www.qcloud.com/product/ssl">腾讯云</a> 申请<br>输入域名，进行域名验证后稍等下就能拿到 TrustAsia 签发的证书，证书有效期为一年，到期后再来同样步骤申请。<br>此种方法相当适合小白。缺点在于需要腾讯云帐号（实名认证）。</li><li>使用 <a href="https://sometimesnaive.org/article/61">我的 acme 脚本</a> 申请<br>步骤稍微多一点，且证书有效期只有 60 天。优势在于可以申请 ECC 证书。</li></ol><h2 id="Nginx-配置"><a href="#Nginx-配置" class="headerlink" title="Nginx 配置"></a>Nginx 配置</h2><pre><code class="language-nginx">server {
+    listen 443;
+
+    server_name sometimesnaive.org;
+
+    ssl on;
+    ssl_protocols TLSv1.2;
+
+    #以下均采用绝对路径，本文用 ~/ 表示
+
+    #LetsEncrypt-chained.cer 由站点证书在上、中间证书在下，粘贴到一个文件内组成
+    ssl_certificate ~/LetsEncrypt-chained.cer;
+    #LetsEncrypt.key 是你的站点证书的密钥
+    ssl_certificate_key ~/LetsEncrypt.key;
+
+    #优先采取服务器算法
+    ssl_prefer_server_ciphers on;
+
+    #定义算法
+    ssl_ciphers &quot;EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256&quot;;
+
+    #使用 DH 文件 迪菲-赫尔曼密钥交换（D-H，Diffie–Hellman key exchange）方案
+    #生成 pem 的方法：openssl dhparam -out dhparam.pem 4096
+    ssl_dhparam ~/dhparam.pem;
+}
+</code></pre><h2 id="验证-HTTPS-状态"><a href="#验证-HTTPS-状态" class="headerlink" title="验证 HTTPS 状态"></a>验证 HTTPS 状态</h2><p>如此一来，配置就算是告一段落了<br>然后就可以在 <a href="https://www.ssllabs.com/ssltest/index.html">ssllabs</a> 测试自己的 SSL 评级了<br>以下为本站的 SSL 评级<br><img src="https://static.sometimesnaive.org:9004/images/nginx-with-https/ssllabs.png" alt="本站的 SSL 评级"></p></section><br><div class="article-footer"><br><p>本文可能过时失效，若需更新，请留言</p><p>本博客文章均为原创，转载请注明来源</p></div><div class="nav-container"><a class="nav-right" href="/article/18">Nginx 启用 RSA &amp;&amp; ECC 双证书 <span class="nav-arrow">→</span> </a><a class="nav-left" href="/article/20"><span class="nav-arrow">← </span>Nginx 连接日志 access.log 的配置</a></div><div id="comments"></div></article><aside class="catalog-container"><div class="toc-main"><strong class="toc-title">Catalog</strong><ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#SSL-证书"><span class="toc-nav-text">SSL 证书</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Nginx-配置"><span class="toc-nav-text">Nginx 配置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#验证-HTTPS-状态"><span class="toc-nav-text">验证 HTTPS 状态</span></a></li></ol></div></aside></main><script>!function(){var e="https://static.sometimesnaive.org:9004/deps/imgs/banner.jpg";$("#article-banner").css({"background-image":"url("+e+")"}),$(".header").removeClass("fixed-header")}()</script><script>(function(){
+    var gitmentConfig = "nanqinlang"
+    if (gitmentConfig !== 'undefined') {
+        var gitment = new Gitment({
+            id: "19",
+            owner: "nanqinlang",
+            repo: "sometimesnaive.org",
+            oauth: {client_id: "b0612de512484ab34c7a", client_secret: "c2bc4cd3c947097d2ccc4c16f120d50458314dd0"},
+            theme: {render(state, instance){const container = document.createElement('div');container.lang="en-US";container.className='gitment-container gitment-root-container';container.appendChild(instance.renderHeader(state, instance));container.appendChild(instance.renderEditor(state, instance));container.appendChild(instance.renderComments(state, instance));container.appendChild(instance.renderFooter(state, instance));return container;}}
+        })
+        gitment.render(document.getElementById('comments'))
+    }
+})();</script><div class="scroll-top"><span class="arrow-icon"></span></div><footer class="app-footer"><p class="copyright" align="center">&copy; 2017 - 2018 南琴浪博客 <a>(sometimesnaive.org)<a></a></a></p></footer><script src="https://static.sometimesnaive.org:9004/deps/js/function.min.js" type="application/javascript"></script><script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-108266909-1","auto"),ga("send","pageview")</script><script async src="https://www.google-analytics.com/analytics.js" type="application/javascript"></script></body></html><!-- rebuild by neat -->
